@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.awt.Point;
+import java.util.Collection;
+
 /**
  * Created by dima on 28/05/16.
  */
@@ -14,6 +16,14 @@ public class PointArray {
 
     public void add(Point p) {
         points.add(p);
+    }
+
+    public void add(int idx, Point p) {
+        points.add(idx, p);
+    }
+
+    public void copyFrom (PointArray newPoints) {
+        for (Point p: newPoints.points) points.add(p);
     }
 
     public void addPointArray(PointArray pa) {

@@ -95,4 +95,37 @@ public class AkimaSpline {
 
         return t;
     }
+
+    public static void addExtraPoints(PointArray source) {
+        // points before:
+        Point p1 = source.get(2);
+        Point p2 = source.get(1);
+        Point p3 = source.get(0);
+        Point p4 = new Point();
+        Point p5 = new Point();
+        calculateExtraPoints(p1, p2, p3, p4, p5);
+        source.add(0, p4);
+        source.add(0, p5);
+
+        // points after:
+        int last = source.size() - 1;
+        p1 = source.get(last - 2);
+        p2 = source.get(last - 1);
+        p3 = source.get(last);
+        p4 = new Point();
+        p5 = new Point();
+        calculateExtraPoints(p1, p2, p3, p4, p5);
+        source.add(p4);
+        source.add(p5);
+    }
+
+    private static void calculateExtraPoints(Point p1, Point p2, Point p3, Point p4, Point p5) {
+        p4.x = p3.x - p1.x + p2.x;
+        p5.x = 2 * p3.x - p1.x;
+        double k1 = (double)(p2.y - p1.y)/ (double)(p2.x - p1.x);
+        double k2 = (double)(p3.y - p2.y)/ (double)(p3.x - p2.x);
+        p4.y = new Double((2 * k2 - k1) * (double)(p4.x - p3.x) + p3.y).intValue();
+        double k3 = (double)(p4.y - p3.y)/ (double)(p4.x - p3.x);
+        p5.y = new Double((2 * k3 - k2) * (double)(p5.x - p4.x) + p4.y).intValue();
+    }
 }
