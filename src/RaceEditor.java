@@ -29,6 +29,8 @@ public class RaceEditor extends JFrame implements MouseListener {
                 }
             }
         }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
+        this.add(new JLabel(new ImageIcon("f1.png")));
+        //System.out.println(System.getProperty("user.dir"));
     }
 
     @Override
@@ -46,6 +48,7 @@ public class RaceEditor extends JFrame implements MouseListener {
             g.setColor(Color.black);
         }
 */
+
         if (points.size() > 2) {
             drawAkimaSpline(points, g);
         }
