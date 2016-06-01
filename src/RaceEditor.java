@@ -29,7 +29,7 @@ public class RaceEditor extends JFrame implements MouseListener {
                 }
             }
         }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
-        this.add(new JLabel(new ImageIcon("f1.png")));
+        //this.add(new JLabel(new ImageIcon("f1.png")));
         //System.out.println(System.getProperty("user.dir"));
     }
 
@@ -37,20 +37,11 @@ public class RaceEditor extends JFrame implements MouseListener {
     public void paint(Graphics g) {
         super.paint(g);
 
-/*        g.setColor(Color.black);
-        for (int i = 0; i < points.size(); i++) {
-            g.drawOval(points.get(i).x - 3, points.get(i).y - 3, 5, 5);
-        }
-
-        if (points.getActive() >= 0) {
-            g.setColor(Color.red);
-            g.drawOval(points.get(points.getActive()).x - 3, points.get(points.getActive()).y - 3, 5, 5);
-            g.setColor(Color.black);
-        }
-*/
-
+        drawPoints(points, g);
         if (points.size() > 2) {
-            drawAkimaSpline(points, g);
+            drawAkimaSpline(points, g, true);
+        } else if (points.size() == 2) {
+            g.drawLine(points.get(0).x, points.get(0).y, points.get(1).x, points.get(1).y);
         }
     }
 
@@ -68,63 +59,13 @@ public class RaceEditor extends JFrame implements MouseListener {
         }
     }
 
-    private void drawAkimaSpline (PointArray points, Graphics g) {
-        PointArray extendedPoints = extendPoints(points);
-        PointArray spline = AkimaSpline.plotSpline(extendedPoints);
+    private void drawAkimaSpline (PointArray points, Graphics g, boolean b) {
+        AkimaSpline as = new AkimaSpline(20, false, true, b);
 
-        drawPoints(extendedPoints, g);
-    //    drawCurve(spline, g, Color.black);
+        PointArray spline = as.getSpline(points);
 
         // curve, parametrised by sequence:
-        drawParametrizedCurve(points, true, g, Color.blue);
-
-        // curve, parametrised by sequence:
-     //   drawParametrizedCurve(points, false, g, Color.red);
-
-    }
-
-    private void drawParametrizedCurve (PointArray source, boolean divideBySeqNo, Graphics g, Color c) {
-        PointArray tx = new PointArray();
-        PointArray ty = new PointArray();
-        dividePoints(source, tx, ty, divideBySeqNo);
-
-        PointArray paramSplineSeq = mergePoints(produceSpline(tx), produceSpline(ty));
-        drawCurve(paramSplineSeq, g, c);
-    }
-
-    private void dividePoints(PointArray xy, PointArray tx, PointArray ty, boolean divideBySeqNo) {
-        int nextT = 0;
-        for (int i = 0; i < xy.size(); i++) {
-            tx.add(new Point(nextT, xy.get(i).x));
-            ty.add(new Point(nextT, xy.get(i).y));
-
-            if (divideBySeqNo) {
-                nextT = i + 1;
-            } else {
-                if (i < xy.size() - 1) nextT = new Double(xy.getDistance(xy.get(i), xy.get(i + 1))).intValue();
-            }
-        }
-    }
-
-    private PointArray mergePoints (PointArray tx, PointArray ty) {
-        PointArray merged = new PointArray();
-        for (int i = 0; i < tx.size(); i++) {
-           merged.add(new Point(tx.get(i).y, ty.get(i).y));
-        }
-        return  merged;
-    }
-
-    private PointArray produceSpline (PointArray source) {
-        PointArray extendedPoints = extendPoints(source);
-        PointArray spline = AkimaSpline.plotSpline(extendedPoints);
-        return spline;
-    }
-
-    private PointArray extendPoints (PointArray source) {
-        PointArray extendedPoints = new PointArray();
-        extendedPoints.copyFrom(source);
-        AkimaSpline.addExtraPoints(extendedPoints);
-        return extendedPoints;
+        drawCurve(spline, g, Color.blue);
     }
 
     private void drawCurve (PointArray p, Graphics g, Color c) {
@@ -135,19 +76,12 @@ public class RaceEditor extends JFrame implements MouseListener {
     }
 
     private void drawPoints (PointArray p, Graphics g) {
-        for (int i = 0; i < p.size(); i++) {
-            if (i == 0 || i == 1 || i == p.size() - 1 || i == p.size() - 2) {
-                g.setColor(Color.green);
-            } else {
-                g.setColor(Color.black);
-            }
-            g.drawOval(p.get(i).x - 3, p.get(i).y - 3, 5, 5);
-        }
+        g.setColor(Color.black);
+        for (int i = 0; i < p.size(); i++) g.drawOval(p.get(i).x - 3, p.get(i).y - 3, 5, 5);
 
         if (p.getActive() >= 0) {
             g.setColor(Color.red);
             g.drawOval(p.get(p.getActive()).x - 3, p.get(p.getActive()).y - 3, 5, 5);
-            g.setColor(Color.black);
         }
 
     }

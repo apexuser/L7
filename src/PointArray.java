@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.awt.Point;
-import java.util.Collection;
 
 /**
  * Created by dima on 28/05/16.
