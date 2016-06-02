@@ -91,8 +91,26 @@ public class AkimaSpline {
         return t;
     }
 
-    private void dividePoints(PointArray xy, PointArray tx, PointArray ty, boolean divideBySeqNo) {
+    private void dividePoints(PointArray source, PointArray tx, PointArray ty, boolean divideBySeqNo) {
         int nextT = 0;
+        PointArray xy = new PointArray();
+        xy.copyFrom(source);
+        if (isClosed) {
+            // points before:
+            Point p0 = xy.get(0);
+            Point p1 = xy.get(1);
+            Point p2 = xy.get(2);
+            // points after:
+            Point pn = xy.get(xy.size() - 1);
+            Point pn1 = xy.get(xy.size() - 2);
+
+            xy.add(0, pn1);
+            xy.add(1, pn);
+            xy.add(p0);
+            xy.add(p1);
+            xy.add(p2);
+        }
+
         for (int i = 0; i < xy.size(); i++) {
             tx.add(new Point(nextT, xy.get(i).x));
             ty.add(new Point(nextT, xy.get(i).y));
@@ -114,26 +132,29 @@ public class AkimaSpline {
     }
 
     private void addExtraPoints(PointArray source) {
-        // points before:
-        Point p1 = source.get(2);
-        Point p2 = source.get(1);
-        Point p3 = source.get(0);
-        Point p4 = new Point();
-        Point p5 = new Point();
-        calculateExtraPoints(p1, p2, p3, p4, p5);
-        source.add(0, p4);
-        source.add(0, p5);
+         if (!isClosed) {
+             // points before:
+             Point p1 = source.get(2);
+             Point p2 = source.get(1);
+             Point p3 = source.get(0);
+             Point p4 = new Point();
+             Point p5 = new Point();
+             calculateExtraPoints(p1, p2, p3, p4, p5);
+             source.add(0, p4);
+             source.add(0, p5);
 
-        // points after:
-        int last = source.size() - 1;
-        p1 = source.get(last - 2);
-        p2 = source.get(last - 1);
-        p3 = source.get(last);
-        p4 = new Point();
-        p5 = new Point();
-        calculateExtraPoints(p1, p2, p3, p4, p5);
-        source.add(p4);
-        source.add(p5);
+             // points after:
+             int last = source.size() - 1;
+             p1 = source.get(last - 2);
+             p2 = source.get(last - 1);
+             p3 = source.get(last);
+             p4 = new Point();
+             p5 = new Point();
+             calculateExtraPoints(p1, p2, p3, p4, p5);
+             source.add(p4);
+             source.add(p5);
+         }
+  //      System.out.println(source.size());
     }
 
     private void calculateExtraPoints(Point p1, Point p2, Point p3, Point p4, Point p5) {
@@ -144,5 +165,17 @@ public class AkimaSpline {
         p4.y = new Double((2 * k2 - k1) * (double)(p4.x - p3.x) + p3.y).intValue();
         double k3 = (double)(p4.y - p3.y)/ (double)(p4.x - p3.x);
         p5.y = new Double((2 * k3 - k2) * (double)(p5.x - p4.x) + p4.y).intValue();
+    }
+
+    public void close() {
+        isClosed = true;
+    }
+
+    public void tear() {
+        isClosed = false;
+    }
+
+    public boolean isClosed() {
+        return isClosed;
     }
 }

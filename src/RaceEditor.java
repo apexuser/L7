@@ -8,9 +8,11 @@ import java.util.ArrayList;
 /**
  * Created by dima on 28/05/16.
  */
-public class RaceEditor extends JFrame implements MouseListener {
+public class RaceEditor extends JFrame implements MouseListener, ActionListener {
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
+    private AkimaSpline as = new AkimaSpline(20, false, true, true);
+    private JButton closeSpline;
 
     public RaceEditor() {
         setTitle("Редактор гонки");
@@ -31,6 +33,11 @@ public class RaceEditor extends JFrame implements MouseListener {
         }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
         //this.add(new JLabel(new ImageIcon("f1.png")));
         //System.out.println(System.getProperty("user.dir"));
+        closeSpline = new JButton("Замкнуть");
+        closeSpline.setBounds(10, 10, 100, 30);
+        closeSpline.addActionListener(this);
+        setLayout(null);
+        add(closeSpline);
     }
 
     @Override
@@ -39,7 +46,7 @@ public class RaceEditor extends JFrame implements MouseListener {
 
         drawPoints(points, g);
         if (points.size() > 2) {
-            drawAkimaSpline(points, g, true);
+            drawAkimaSpline(points, g, false);
         } else if (points.size() == 2) {
             g.drawLine(points.get(0).x, points.get(0).y, points.get(1).x, points.get(1).y);
         }
@@ -60,8 +67,6 @@ public class RaceEditor extends JFrame implements MouseListener {
     }
 
     private void drawAkimaSpline (PointArray points, Graphics g, boolean b) {
-        AkimaSpline as = new AkimaSpline(20, false, true, b);
-
         PointArray spline = as.getSpline(points);
 
         // curve, parametrised by sequence:
@@ -108,5 +113,17 @@ public class RaceEditor extends JFrame implements MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (as.isClosed()) {
+            as.tear();
+            closeSpline.setText("Замкнуть");
+        } else {
+            as.close();
+            closeSpline.setText("Разомкнуть");
+        }
+        repaint();
     }
 }
