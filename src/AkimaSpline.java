@@ -59,7 +59,8 @@ public class AkimaSpline {
         double step = dx / segments;
 
         res.add(p1);
-        for (double xx = p1.x + step; xx < p2.x; xx += step) {
+        for (double xx = p1.x + step; xx < p2.x + step; xx += step) {
+            if (xx > p2.x) xx = p2.x; // to remove possible line breaks
             double xpar = xx - p1.x;
             int y = new Double(k0 + xpar * (k1 + xpar * (k2 + xpar * k3))).intValue();
             int x = new Double(xx).intValue();
@@ -154,7 +155,6 @@ public class AkimaSpline {
              source.add(p4);
              source.add(p5);
          }
-  //      System.out.println(source.size());
     }
 
     private void calculateExtraPoints(Point p1, Point p2, Point p3, Point p4, Point p5) {
