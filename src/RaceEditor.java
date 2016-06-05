@@ -31,13 +31,13 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
                 }
             }
         }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
-        //this.add(new JLabel(new ImageIcon("f1.png")));
         //System.out.println(System.getProperty("user.dir"));
         closeSpline = new JButton("Замкнуть");
         closeSpline.setBounds(10, 10, 100, 30);
         closeSpline.addActionListener(this);
         setLayout(null);
         add(closeSpline);
+//        this.add(new JLabel(new ImageIcon("f1.png")));
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         drawPoints(points, g);
         if (points.size() > 2) {
             drawAkimaSpline(points, g, false);
-            drawCircles(points, g);
+            //drawCircles(points, g);
         } else if (points.size() == 2) {
             g.drawLine(points.get(0).x, points.get(0).y, points.get(1).x, points.get(1).y);
         }

@@ -9,14 +9,12 @@ public class AkimaSpline {
     private boolean isClosed;
     private boolean isParametrized;
     private boolean divideBySeqNo;
-    private PointArray extendedPoints;
 
     public AkimaSpline (int segments, boolean isClosed, boolean isParametrized, boolean divideBySeqNo) {
         this.segments = segments;
         this.isClosed = isClosed;
         this.isParametrized = isParametrized;
         this.divideBySeqNo = divideBySeqNo;
-        extendedPoints = new PointArray();
     }
     
     public PointArray getSpline(PointArray source) {
