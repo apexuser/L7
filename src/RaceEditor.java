@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class RaceEditor extends JFrame implements MouseListener, ActionListener {
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
-    private AkimaSpline as = new AkimaSpline(20, false, true, false);
+    private AkimaSpline as = new AkimaSpline(5, false, true, false);
     private JButton closeSpline;
 
     public RaceEditor() {
@@ -47,7 +47,6 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         drawPoints(points, g);
         if (points.size() > 2) {
             drawAkimaSpline(points, g, false);
-            //drawCircles(points, g);
         } else if (points.size() == 2) {
             g.drawLine(points.get(0).x, points.get(0).y, points.get(1).x, points.get(1).y);
         }
@@ -72,6 +71,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
 
         // curve, parametrised by sequence:
         drawCurve(spline, g, Color.blue);
+        drawCircles(spline, g);
     }
 
     private void drawCurve (PointArray p, Graphics g, Color c) {
@@ -92,30 +92,37 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
 
     }
 
+    private Point circleCenter (Point pa, Point pb, Point pc) {
+        double ax = 0;// points.get(i).x;
+        double ay = 0;// points.get(i).y;
+        double bx = pb.x - pa.x;
+        double by = pb.y - pa.y;
+        double cx = pc.x - pa.x;
+        double cy = pc.y - pa.y;
+        double d = 2 * (ax * (by - cy) +
+                bx * (cy - ay) +
+                cx * (ay - by));
+
+        int ox = new Double(((ax * ax + ay * ay) * (by - cy) +
+                (bx * bx + by * by) * (cy - ay) +
+                (cx * cx + cy * cy) * (ay - by)) / d).intValue() + pa.x;
+        int oy = new Double(((ax * ax + ay * ay) * (cx - bx) +
+                (bx * bx + by * by) * (ax - cx) +
+                (cx * cx + cy * cy) * (bx - ax)) / d).intValue() + pa.y;
+        return new Point(ox, oy);
+    }
+
     private void drawCircles (PointArray points, Graphics g) {
+        Point prev = null;
         for (int i = 0; i < points.size() - 2; i++) {
-            double ax = 0;// points.get(i).x;
-            double ay = 0;// points.get(i).y;
-            double bx = points.get(i + 1).x - points.get(i).x;
-            double by = points.get(i + 1).y - points.get(i).y;
-            double cx = points.get(i + 2).x - points.get(i).x;
-            double cy = points.get(i + 2).y - points.get(i).y;
-            double d = 2 * (ax * (by - cy) +
-                            bx * (cy - ay) +
-                            cx * (ay - by));
-
-            int ox = new Double(((ax * ax + ay * ay) * (by - cy) +
-                                 (bx * bx + by * by) * (cy - ay) +
-                                 (cx * cx + cy * cy) * (ay - by)) / d).intValue() + points.get(i).x;
-            int oy = new Double(((ax * ax + ay * ay) * (cx - bx) +
-                                 (bx * bx + by * by) * (ax - cx) +
-                                 (cx * cx + cy * cy) * (bx - ax)) / d).intValue() + points.get(i).y;
-
-            int r = new Double(points.getDistance(new Point(ox, oy), points.get(i))).intValue();
             g.setColor(Color.magenta);
-            g.drawOval(ox - 2, oy - 2, 5, 5);
-            g.setColor(Color.red);
-            g.drawOval(ox - r, oy - r, r * 2, r * 2);
+            Point p = circleCenter(points.get(i), points.get(i + 1), points.get(i + 2));
+            g.drawOval(p.x - 2, p.y - 2, 5, 5);
+
+            if (prev != null) {
+                g.drawLine(p.x, p.y, prev.x, prev.y);
+            }
+            prev = p;
         }
     }
 
