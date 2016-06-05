@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class RaceEditor extends JFrame implements MouseListener, ActionListener {
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
-    private AkimaSpline as = new AkimaSpline(5, false, true, false);
+    private AkimaSpline as = new AkimaSpline(20, false, true, false);
     private JButton closeSpline;
 
     public RaceEditor() {
@@ -38,6 +38,10 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         setLayout(null);
         add(closeSpline);
 //        this.add(new JLabel(new ImageIcon("f1.png")));
+
+        points.add(new Point(329, 435));
+        points.add(new Point(341, 362));
+        points.add(new Point(622, 495));
     }
 
     @Override
@@ -67,11 +71,43 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
     }
 
     private void drawAkimaSpline (PointArray points, Graphics g, boolean b) {
-        PointArray spline = as.getSpline(points);
+        as.buildSpline(points);
+        PointArray spline = renderSpline(as);
 
         // curve, parametrised by sequence:
         drawCurve(spline, g, Color.blue);
-        drawCircles(spline, g);
+      //  drawCircles(spline, g);
+    }
+
+    private PointArray renderSpline(AkimaSpline as) {
+        PointArray result = new PointArray();
+        ArrayList<AkimaArc> ax = as.getArcX();
+        ArrayList<AkimaArc> ay = as.getArcY();
+
+        for (int i = 0; i < ax.size() - 1; i++) {
+            result.addPointArray(renderArc(ax.get(i), ay.get(i), as.getSegments()));
+        }
+//        if (as.isClosed()) {
+//            result.addPointArray(renderArc(ax.get(ax.size() - 1), ay.get(ax.size() - 1), ax.get(0), ay.get(0), as.getSegments()));
+//        }
+        return result;
+    }
+
+    private PointArray renderArc(AkimaArc ax, AkimaArc ay, int segments) {
+        System.out.println("Output arc properties");
+        System.out.println("arc x(t): k0 = " + ax.k0 + " k1 = " + ax.k1 + " k2 = " + ax.k2 + " k3 = " + ax.k3 + " t = " + ax.x1 + " x = " + ax.y1);
+        System.out.println("arc y(t): k0 = " + ay.k0 + " k1 = " + ay.k1 + " k2 = " + ay.k2 + " k3 = " + ay.k3 + " t = " + ay.x1 + " y = " + ay.y1);
+
+        PointArray result = new PointArray();
+        double tstep = (ax.x2 - ax.x1) / segments;
+        double t = ax.x1;
+
+        for (int i = 0; i < segments; i++) {
+            result.add(new Point(new Double(ax.k0 + t * (ax.k1 + t * (ax.k2 + t * ax.k3))).intValue(),
+                                 new Double(ay.k0 + t * (ay.k1 + t * (ay.k2 + t * ay.k3))).intValue()));
+            t += tstep;
+        }
+        return result;
     }
 
     private void drawCurve (PointArray p, Graphics g, Color c) {
