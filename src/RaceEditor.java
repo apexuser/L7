@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class RaceEditor extends JFrame implements MouseListener, ActionListener {
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
-    private AkimaSpline as = new AkimaSpline(20, false, true, false);
+    private AkimaSpline as = new AkimaSpline(10, false, true, false);
     private JButton closeSpline;
     private JButton resetSpline;
 
@@ -41,11 +41,11 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         resetSpline.setBounds(120, 10, 100, 30);
         resetSpline.addActionListener(this);
         resetSpline.setActionCommand("reset");
-        setLayout(null);
-        add(closeSpline);
-        add(resetSpline);
+//        setLayout(null);
+//        add(closeSpline);
+//        add(resetSpline);
 
-//        this.add(new JLabel(new ImageIcon("f1.png")));
+        this.add(new JLabel(new ImageIcon("f1.png")));
     }
 
     @Override
@@ -58,6 +58,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         } else if (points.size() == 2) {
             g.drawLine(points.get(0).x, points.get(0).y, points.get(1).x, points.get(1).y);
         }
+        //testFill(g);
     }
 
     @Override
@@ -74,23 +75,56 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         }
     }
 
+    private void testFill(Graphics g) {
+        for (int i = 0; i < 256; i++) {
+            Color c = new Color(i, 0, 255 - i);
+            g.setColor(c);
+            g.drawLine(100, i + 100, 200, i + 100);
+        }
+    }
+
     private void drawAkimaSpline (PointArray points, Graphics g, boolean b) {
         as.buildSpline(points);
         PointArray spline = renderSpline(as);
 
+
         // curve, parametrised by sequence:
-        drawCurve(spline, g, Color.blue);
+      //  drawCurve(spline, g, Color.blue);
       //  drawCircles(spline, g);
         PointArray evolute = renderEvolute(as);
+        drawColored(spline, evolute, g);
         // curve, parametrised by sequence:
-        drawCurve(evolute, g, Color.magenta);
+      //  drawCurve(evolute, g, Color.magenta);
+       // System.out.println("Spline size = " + spline.size() + " evolute size = " + evolute.size());
+    }
+
+    private void drawColored(PointArray spline, PointArray evolute, Graphics g) {
+        //find max and min
+        double max = 0;
+        double min = 1000000;
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(2));
+        for (int i = 0; i < spline.size(); i++) {
+            double r = Math.log(spline.getDistance(spline.get(i), evolute.get(i)));
+            if (r > max) max = r;
+            if (r < min) min = r;
+        }
+        double colorDistance = (max - min) / 255;
+
+        for (int i = 0; i < spline.size() - 1; i++) {
+            double r = Math.log(spline.getDistance(spline.get(i), evolute.get(i)));
+            int d = new Double((max - r) / colorDistance).intValue();
+            Color c = new Color(d, 0, 255 - d);
+            g2.setColor(c);
+            g2.drawLine(spline.get(i).x, spline.get(i).y, spline.get(i + 1).x, spline.get(i + 1).y);
+        }
     }
 
     private PointArray renderEvolute(AkimaSpline as) {
         PointArray result = new PointArray();
         ArrayList<AkimaArc> ax = as.getArcX();
         ArrayList<AkimaArc> ay = as.getArcY();
-        int seg = 10;
+        int seg = 11;
 
         for (int i = 0; i < ax.size(); i++) {
             double t = 0;
