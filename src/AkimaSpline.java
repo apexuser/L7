@@ -95,18 +95,7 @@ public class AkimaSpline {
         double k3 = (t1 + t2 - 2 * dydx) / Math.pow(dx, 2);
 
         return new AkimaArc(k0, k1, k2, k3, p1.x, p1.y, p2.x, p2.y);
-/*        double step = dx / segments;
-
-        res.add(p1);
-        for (double xx = p1.x + step; xx < p2.x + step; xx += step) {
-            if (xx > p2.x) xx = p2.x; // to remove possible line breaks
-            double xpar = xx - p1.x;
-            int y = new Double(k0 + xpar * (k1 + xpar * (k2 + xpar * k3))).intValue();
-            int x = new Double(xx).intValue();
-            res.add(new Point(x, y));
-        }
-        return res;
-*/    }
+    }
 
     private static ArrayList<Double> getTArray(PointArray source) {
         ArrayList<Double> t = new ArrayList<Double>();
@@ -161,14 +150,6 @@ public class AkimaSpline {
                 if (i < xy.size() - 1) nextT += new Double(xy.getDistance(xy.get(i), xy.get(i + 1))).intValue();
             }
         }
-    }
-
-    private PointArray mergePoints (PointArray tx, PointArray ty) {
-        PointArray merged = new PointArray();
-        for (int i = 0; i < tx.size(); i++) {
-            merged.add(new Point(tx.get(i).y, ty.get(i).y));
-        }
-        return  merged;
     }
 
     private void addExtraPoints(PointArray source) {

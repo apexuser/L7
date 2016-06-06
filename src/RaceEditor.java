@@ -13,6 +13,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
     private PointArray points = new PointArray();
     private AkimaSpline as = new AkimaSpline(20, false, true, false);
     private JButton closeSpline;
+    private JButton resetSpline;
 
     public RaceEditor() {
         setTitle("Редактор гонки");
@@ -35,13 +36,16 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         closeSpline = new JButton("Замкнуть");
         closeSpline.setBounds(10, 10, 100, 30);
         closeSpline.addActionListener(this);
+        closeSpline.setActionCommand("close");
+        resetSpline = new JButton("Сброс");
+        resetSpline.setBounds(120, 10, 100, 30);
+        resetSpline.addActionListener(this);
+        resetSpline.setActionCommand("reset");
         setLayout(null);
         add(closeSpline);
-//        this.add(new JLabel(new ImageIcon("f1.png")));
+        add(resetSpline);
 
-        points.add(new Point(329, 435));
-        points.add(new Point(341, 362));
-        points.add(new Point(622, 495));
+//        this.add(new JLabel(new ImageIcon("f1.png")));
     }
 
     @Override
@@ -77,6 +81,27 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         // curve, parametrised by sequence:
         drawCurve(spline, g, Color.blue);
       //  drawCircles(spline, g);
+        PointArray evolute = renderEvolute(as);
+        // curve, parametrised by sequence:
+        drawCurve(evolute, g, Color.magenta);
+    }
+
+    private PointArray renderEvolute(AkimaSpline as) {
+        PointArray result = new PointArray();
+        ArrayList<AkimaArc> ax = as.getArcX();
+        ArrayList<AkimaArc> ay = as.getArcY();
+        int seg = 10;
+
+        for (int i = 0; i < ax.size(); i++) {
+            double t = 0;
+            double step = (ax.get(i).x2 - ax.get(i).x1) / seg;
+            for (int j = 0; j < seg; j++) {
+                result.add(as.getEvolutePoint(t, ax.get(i), ay.get(i)));
+                t += step;
+            }
+        }
+
+        return result;
     }
 
     private PointArray renderSpline(AkimaSpline as) {
@@ -94,15 +119,11 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
     }
 
     private PointArray renderArc(AkimaArc ax, AkimaArc ay, int segments) {
-        System.out.println("Output arc properties");
-        System.out.println("arc x(t): k0 = " + ax.k0 + " k1 = " + ax.k1 + " k2 = " + ax.k2 + " k3 = " + ax.k3 + " t = " + ax.x1 + " x = " + ax.y1);
-        System.out.println("arc y(t): k0 = " + ay.k0 + " k1 = " + ay.k1 + " k2 = " + ay.k2 + " k3 = " + ay.k3 + " t = " + ay.x1 + " y = " + ay.y1);
-
         PointArray result = new PointArray();
         double tstep = (ax.x2 - ax.x1) / segments;
-        double t = ax.x1;
+        double t = 0;
 
-        for (int i = 0; i < segments; i++) {
+        for (int i = 0; i <= segments; i++) {
             result.add(new Point(new Double(ax.k0 + t * (ax.k1 + t * (ax.k2 + t * ax.k3))).intValue(),
                                  new Double(ay.k0 + t * (ay.k1 + t * (ay.k2 + t * ay.k3))).intValue()));
             t += tstep;
@@ -188,12 +209,16 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (as.isClosed()) {
-            as.tear();
-            closeSpline.setText("Замкнуть");
+        if ("close".equals(e.getActionCommand())) {
+            if (as.isClosed()) {
+                as.tear();
+                closeSpline.setText("Замкнуть");
+            } else {
+                as.close();
+                closeSpline.setText("Разомкнуть");
+            }
         } else {
-            as.close();
-            closeSpline.setText("Разомкнуть");
+            points = new PointArray();
         }
         repaint();
     }
