@@ -56,12 +56,14 @@ public class AkimaSpline {
 
         double step = dx / segments;
 
+        System.out.println("Arc from (" + p1.x + ", " + p1.y + ")");
         res.add(p1);
         for (double xx = p1.x + step; xx < p2.x + step; xx += step) {
             if (xx > p2.x) xx = p2.x; // to remove possible line breaks
             double xpar = xx - p1.x;
             int y = new Double(k0 + xpar * (k1 + xpar * (k2 + xpar * k3))).intValue();
             int x = new Double(xx).intValue();
+            System.out.println("xpar = " + xpar + " x = " + x + " y = " + y);
             res.add(new Point(x, y));
         }
         return res;

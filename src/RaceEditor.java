@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class RaceEditor extends JFrame implements MouseListener, ActionListener {
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
-    private AkimaSpline as = new AkimaSpline(5, false, true, false);
+    private AkimaSpline as = new AkimaSpline(10, false, true, false);
     private JButton closeSpline;
 
     public RaceEditor() {
@@ -38,6 +38,10 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         setLayout(null);
         add(closeSpline);
 //        this.add(new JLabel(new ImageIcon("f1.png")));
+        points.add(new Point(329, 435));
+        points.add(new Point(341, 362));
+        points.add(new Point(622, 495));
+
     }
 
     @Override
