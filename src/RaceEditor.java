@@ -84,7 +84,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         ArrayList<AkimaArc> ax = as.getArcX();
         ArrayList<AkimaArc> ay = as.getArcY();
 
-        for (int i = 0; i < ax.size() - 1; i++) {
+        for (int i = 0; i < ax.size(); i++) {
             result.addPointArray(renderArc(ax.get(i), ay.get(i), as.getSegments()));
         }
 //        if (as.isClosed()) {
