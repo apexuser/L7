@@ -12,8 +12,9 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
     private AkimaSpline as = new AkimaSpline(10, false, true, false);
-    private JButton closeSpline;
-    private JButton resetSpline;
+    //private JButton closeSpline;
+    //private JButton resetSpline;
+    private BtnPanel btnPanel;
 
     public RaceEditor() {
         setTitle("Редактор гонки");
@@ -33,14 +34,17 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
             }
         }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
         //System.out.println(System.getProperty("user.dir"));
-        closeSpline = new JButton("Замкнуть");
-        closeSpline.setBounds(10, 10, 100, 30);
-        closeSpline.addActionListener(this);
-        closeSpline.setActionCommand("close");
-        resetSpline = new JButton("Сброс");
-        resetSpline.setBounds(120, 10, 100, 30);
-        resetSpline.addActionListener(this);
-        resetSpline.setActionCommand("reset");
+        btnPanel = new BtnPanel();
+        btnPanel.setBounds(0, 0, 120, 200);
+        this.add(btnPanel);
+//        closeSpline = new JButton("Замкнуть");
+//        closeSpline.setBounds(10, 10, 100, 30);
+        btnPanel.closeSpline.addActionListener(this);
+//        closeSpline.setActionCommand("close");
+//        resetSpline = new JButton("Сброс");
+//        resetSpline.setBounds(120, 10, 100, 30);
+        btnPanel.resetSpline.addActionListener(this);
+//        resetSpline.setActionCommand("reset");
 
         this.add(new JLabel(new ImageIcon("f1.png")));
     }
@@ -243,10 +247,10 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         if ("close".equals(e.getActionCommand())) {
             if (as.isClosed()) {
                 as.tear();
-                closeSpline.setText("Замкнуть");
+                btnPanel.closeSpline.setText("Замкнуть");
             } else {
                 as.close();
-                closeSpline.setText("Разомкнуть");
+                btnPanel.closeSpline.setText("Разомкнуть");
             }
         } else {
             points = new PointArray();
