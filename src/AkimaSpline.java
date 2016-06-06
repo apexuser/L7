@@ -9,44 +9,84 @@ public class AkimaSpline {
     private boolean isClosed;
     private boolean isParametrized;
     private boolean divideBySeqNo;
+    private ArrayList<AkimaArc> arc;
+    private ArrayList<AkimaArc> arcX;
+    private ArrayList<AkimaArc> arcY;
 
     public AkimaSpline (int segments, boolean isClosed, boolean isParametrized, boolean divideBySeqNo) {
         this.segments = segments;
         this.isClosed = isClosed;
         this.isParametrized = isParametrized;
         this.divideBySeqNo = divideBySeqNo;
+        arc = new ArrayList<AkimaArc>();
+        arcX = new ArrayList<AkimaArc>();
+        arcY = new ArrayList<AkimaArc>();
     }
     
-    public PointArray getSpline(PointArray source) {
-        if (isParametrized) return getParametrizedSpline(source);
-                       else return getSimpleSpline(source);
+    public void buildSpline(PointArray source) {
+        if (isParametrized) buildParametrizedSpline(source);
+                       else arc = getSimpleSpline(source);
 
     }
 
-    private PointArray getParametrizedSpline(PointArray source) {
+    public ArrayList<AkimaArc> getArcX() {
+        return arcX;
+    }
+
+    public ArrayList<AkimaArc> getArcY() {
+        return arcY;
+    }
+
+    public int getSegments() {
+        return segments;
+    }
+
+    public Point getEvolutePoint (double t, AkimaArc ax, AkimaArc ay) {
+        double x = getPoly(t, ax);
+        double y = getPoly(t, ay);
+        double dx = getDeriv1(t, ax);
+        double dy = getDeriv1(t, ay);
+        double ddx = getDeriv2(t, ax);
+        double ddy = getDeriv2(t, ay);
+        double fraction = (dx * dx + dy * dy) / (dx * ddy - ddx * dy);
+        return new Point(new Double(x - dy * fraction).intValue(), new Double(y + dx * fraction).intValue());
+    }
+
+    private double getPoly(double x, AkimaArc a) {
+        return a.k0 + x * (a.k1 + x * (a.k2 + x * a.k3));
+    }
+
+    private double getDeriv1 (double x, AkimaArc a) {
+        return a.k1 + x * (2 * a.k2 + 3 * x * a.k3);
+    }
+
+    private double getDeriv2 (double x, AkimaArc a) {
+        return 2 * a.k2 + 6 * x * a.k3;
+    }
+
+    private void buildParametrizedSpline(PointArray source) {
         PointArray tx = new PointArray();
         PointArray ty = new PointArray();
         dividePoints(source, tx, ty, divideBySeqNo);
 
-        return mergePoints(getSimpleSpline(tx), getSimpleSpline(ty));
+        arcX = getSimpleSpline(tx);
+        arcY = getSimpleSpline(ty);
     }
 
-    private PointArray getSimpleSpline(PointArray source) {
-        PointArray result = new PointArray();
+    private ArrayList<AkimaArc> getSimpleSpline(PointArray source) {
+        ArrayList<AkimaArc> result = new ArrayList<AkimaArc>();
         PointArray extendedSource = new PointArray();
         extendedSource.copyFrom(source);
         addExtraPoints(extendedSource);
         ArrayList<Double> t = getTArray(extendedSource);
 
         for (int i = 2; i < extendedSource.size() - 3; i++) {
-            result.addPointArray(getAkimaArc(extendedSource.get(i), extendedSource.get(i + 1), t.get(i - 2), t.get(i - 1)));
+            result.add(getAkimaArc(extendedSource.get(i), extendedSource.get(i + 1), t.get(i - 2), t.get(i - 1)));
         }
         return result;
     }
 
-    private PointArray getAkimaArc(Point p1, Point p2, double t1, double t2) {
-        PointArray res = new PointArray();
-
+    private AkimaArc getAkimaArc(Point p1, Point p2, double t1, double t2) {
         double dx = (double)(p2.x - p1.x);
         double dydx = (double)(p2.y - p1.y) / dx;
         double k0 = (double)p1.y;
@@ -54,19 +94,7 @@ public class AkimaSpline {
         double k2 = (3 * dydx - 2 * t1 - t2) / dx;
         double k3 = (t1 + t2 - 2 * dydx) / Math.pow(dx, 2);
 
-        double step = dx / segments;
-
-        System.out.println("Arc from (" + p1.x + ", " + p1.y + ")");
-        res.add(p1);
-        for (double xx = p1.x + step; xx < p2.x + step; xx += step) {
-            if (xx > p2.x) xx = p2.x; // to remove possible line breaks
-            double xpar = xx - p1.x;
-            int y = new Double(k0 + xpar * (k1 + xpar * (k2 + xpar * k3))).intValue();
-            int x = new Double(xx).intValue();
-            System.out.println("xpar = " + xpar + " x = " + x + " y = " + y);
-            res.add(new Point(x, y));
-        }
-        return res;
+        return new AkimaArc(k0, k1, k2, k3, p1.x, p1.y, p2.x, p2.y);
     }
 
     private static ArrayList<Double> getTArray(PointArray source) {
@@ -122,14 +150,6 @@ public class AkimaSpline {
                 if (i < xy.size() - 1) nextT += new Double(xy.getDistance(xy.get(i), xy.get(i + 1))).intValue();
             }
         }
-    }
-
-    private PointArray mergePoints (PointArray tx, PointArray ty) {
-        PointArray merged = new PointArray();
-        for (int i = 0; i < tx.size(); i++) {
-            merged.add(new Point(tx.get(i).y, ty.get(i).y));
-        }
-        return  merged;
     }
 
     private void addExtraPoints(PointArray source) {
