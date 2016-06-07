@@ -1,8 +1,8 @@
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.Point;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -12,8 +12,6 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
     private AkimaSpline as = new AkimaSpline(10, false, true, false);
-    //private JButton closeSpline;
-    //private JButton resetSpline;
     private BtnPanel btnPanel;
 
     public RaceEditor() {
@@ -33,18 +31,14 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
                 }
             }
         }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
-        //System.out.println(System.getProperty("user.dir"));
         btnPanel = new BtnPanel();
-        btnPanel.setBounds(0, 0, 120, 200);
+        btnPanel.setBounds(0, 0, 120, 500);
         this.add(btnPanel);
-//        closeSpline = new JButton("Замкнуть");
-//        closeSpline.setBounds(10, 10, 100, 30);
         btnPanel.closeSpline.addActionListener(this);
-//        closeSpline.setActionCommand("close");
-//        resetSpline = new JButton("Сброс");
-//        resetSpline.setBounds(120, 10, 100, 30);
         btnPanel.resetSpline.addActionListener(this);
-//        resetSpline.setActionCommand("reset");
+        btnPanel.saveTrack.addActionListener(this);
+        btnPanel.loadTrack.addActionListener(this);
+        btnPanel.runRace.addActionListener(this);
 
         this.add(new JLabel(new ImageIcon("f1.png")));
     }
@@ -59,7 +53,6 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         } else if (points.size() == 2) {
             g.drawLine(points.get(0).x, points.get(0).y, points.get(1).x, points.get(1).y);
         }
-        //testFill(g);
     }
 
     @Override
@@ -73,14 +66,6 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
                 points.add(new Point(e.getX(), e.getY()));
                 repaint();
             }
-        }
-    }
-
-    private void testFill(Graphics g) {
-        for (int i = 0; i < 256; i++) {
-            Color c = new Color(i, 0, 255 - i);
-            g.setColor(c);
-            g.drawLine(100, i + 100, 200, i + 100);
         }
     }
 
@@ -147,9 +132,6 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         for (int i = 0; i < ax.size(); i++) {
             result.addPointArray(renderArc(ax.get(i), ay.get(i), as.getSegments()));
         }
-//        if (as.isClosed()) {
-//            result.addPointArray(renderArc(ax.get(ax.size() - 1), ay.get(ax.size() - 1), ax.get(0), ay.get(0), as.getSegments()));
-//        }
         return result;
     }
 
@@ -244,17 +226,58 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if ("close".equals(e.getActionCommand())) {
-            if (as.isClosed()) {
-                as.tear();
-                btnPanel.closeSpline.setText("Замкнуть");
-            } else {
-                as.close();
-                btnPanel.closeSpline.setText("Разомкнуть");
-            }
-        } else {
-            points = new PointArray();
+        switch (e.getActionCommand()) {
+            case "close" :
+                if (as.isClosed()) {
+                    as.tear();
+                    btnPanel.closeSpline.setText("Замкнуть");
+                } else {
+                    as.close();
+                    btnPanel.closeSpline.setText("Разомкнуть");
+                }
+                break;
+            case "reset" :
+                points = new PointArray();
+                break;
+            case "save" :
+                save();
+                break;
+            case "load" :
+                load();
+                break;
+            case "run" :
+                run();
         }
         repaint();
+    }
+
+    private void save() {
+        FileOutputStream fos;
+        try {
+            fos = new FileOutputStream("test.track");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(points);
+            oos.close();
+        } catch (IOException e) {
+                e.printStackTrace();
+        }
+    }
+
+    private void load() {
+        FileInputStream fis;
+        try {
+            fis = new FileInputStream("test.track");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            points = (PointArray) ois.readObject();
+            ois.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void run() {
+
     }
 }

@@ -6,15 +6,23 @@ import javax.swing.*;
 public class BtnPanel extends JPanel {
     public JButton closeSpline;
     public JButton resetSpline;
+    public JButton saveTrack;
+    public JButton loadTrack;
+    public JButton runRace;
 
     public BtnPanel() {
-        closeSpline = new JButton("Замкнуть");
-        closeSpline.setBounds(10, 10, 100, 30);
-        closeSpline.setActionCommand("close");
-        resetSpline = new JButton("Сброс");
-        resetSpline.setBounds(120, 10, 100, 30);
-        resetSpline.setActionCommand("reset");
-        this.add(closeSpline);
-        this.add(resetSpline);
+        closeSpline = initButton("Замкнуть",  10,  10, 100, 30, "close");
+        resetSpline = initButton("Сброс",     10,  50, 100, 30, "reset");
+        saveTrack = initButton("Сохранить", 10,  90, 100, 30, "save");
+        loadTrack = initButton("Загрузить", 10, 130, 100, 30, "load");
+        runRace     = initButton("Запуск",    10, 170, 100, 30, "run");
+    }
+
+    private JButton initButton (String title, int x, int y, int width, int height, String command) {
+        JButton b = new JButton(title);
+        b.setBounds(x, y, width, height);
+        b.setActionCommand(command);
+        this.add(b);
+        return b;
     }
 }

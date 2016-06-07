@@ -1,10 +1,11 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.awt.Point;
 
 /**
  * Created by dima on 28/05/16.
  */
-public class PointArray {
+public class PointArray implements Serializable {
     private ArrayList<Point> points;
     public int active;
 
