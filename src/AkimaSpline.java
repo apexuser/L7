@@ -29,18 +29,6 @@ public class AkimaSpline {
 
     }
 
-    public ArrayList<AkimaArc> getArcX() {
-        return arcX;
-    }
-
-    public ArrayList<AkimaArc> getArcY() {
-        return arcY;
-    }
-
-    public int getSegments() {
-        return segments;
-    }
-
     public Point getEvolutePoint (double t, AkimaArc ax, AkimaArc ay) {
         double x = getPoly(t, ax);
         double y = getPoly(t, ay);
@@ -197,5 +185,42 @@ public class AkimaSpline {
 
     public boolean isClosed() {
         return isClosed;
+    }
+
+    public PointArray renderSpline() {
+        PointArray result = new PointArray();
+
+        for (int i = 0; i < arcX.size(); i++) {
+            result.addPointArray(renderArc(arcX.get(i), arcY.get(i)));
+        }
+        return result;
+    }
+
+    public PointArray renderArc(AkimaArc ax, AkimaArc ay) {
+        PointArray result = new PointArray();
+        double tstep = (ax.x2 - ax.x1) / segments;
+        double t = 0;
+
+        for (int i = 0; i <= segments; i++) {
+            result.add(new Point(new Double(ax.k0 + t * (ax.k1 + t * (ax.k2 + t * ax.k3))).intValue(),
+                                 new Double(ay.k0 + t * (ay.k1 + t * (ay.k2 + t * ay.k3))).intValue()));
+            t += tstep;
+        }
+        return result;
+    }
+
+    public PointArray renderEvolute() {
+        PointArray result = new PointArray();
+
+        for (int i = 0; i < arcX.size(); i++) {
+            double t = 0;
+            double step = (arcX.get(i).x2 - arcX.get(i).x1) / (segments + 1);
+            for (int j = 0; j <= segments; j++) {
+                result.add(getEvolutePoint(t, arcX.get(i), arcY.get(i)));
+                t += step;
+            }
+        }
+
+        return result;
     }
 }

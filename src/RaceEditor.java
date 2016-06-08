@@ -3,7 +3,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.Point;
 import java.io.*;
-import java.util.ArrayList;
 
 /**
  * Created by dima on 28/05/16.
@@ -71,17 +70,9 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
 
     private void drawAkimaSpline (PointArray points, Graphics g, boolean b) {
         as.buildSpline(points);
-        PointArray spline = renderSpline(as);
-
-
-        // curve, parametrised by sequence:
-      //  drawCurve(spline, g, Color.blue);
-      //  drawCircles(spline, g);
-        PointArray evolute = renderEvolute(as);
+        PointArray spline = as.renderSpline();
+        PointArray evolute = as.renderEvolute();
         drawColored(spline, evolute, g);
-        // curve, parametrised by sequence:
-      //  drawCurve(evolute, g, Color.magenta);
-       // System.out.println("Spline size = " + spline.size() + " evolute size = " + evolute.size());
     }
 
     private void drawColored(PointArray spline, PointArray evolute, Graphics g) {
@@ -104,48 +95,6 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
             g2.setColor(c);
             g2.drawLine(spline.get(i).x, spline.get(i).y, spline.get(i + 1).x, spline.get(i + 1).y);
         }
-    }
-
-    private PointArray renderEvolute(AkimaSpline as) {
-        PointArray result = new PointArray();
-        ArrayList<AkimaArc> ax = as.getArcX();
-        ArrayList<AkimaArc> ay = as.getArcY();
-        int seg = 11;
-
-        for (int i = 0; i < ax.size(); i++) {
-            double t = 0;
-            double step = (ax.get(i).x2 - ax.get(i).x1) / seg;
-            for (int j = 0; j < seg; j++) {
-                result.add(as.getEvolutePoint(t, ax.get(i), ay.get(i)));
-                t += step;
-            }
-        }
-
-        return result;
-    }
-
-    private PointArray renderSpline(AkimaSpline as) {
-        PointArray result = new PointArray();
-        ArrayList<AkimaArc> ax = as.getArcX();
-        ArrayList<AkimaArc> ay = as.getArcY();
-
-        for (int i = 0; i < ax.size(); i++) {
-            result.addPointArray(renderArc(ax.get(i), ay.get(i), as.getSegments()));
-        }
-        return result;
-    }
-
-    private PointArray renderArc(AkimaArc ax, AkimaArc ay, int segments) {
-        PointArray result = new PointArray();
-        double tstep = (ax.x2 - ax.x1) / segments;
-        double t = 0;
-
-        for (int i = 0; i <= segments; i++) {
-            result.add(new Point(new Double(ax.k0 + t * (ax.k1 + t * (ax.k2 + t * ax.k3))).intValue(),
-                                 new Double(ay.k0 + t * (ay.k1 + t * (ay.k2 + t * ay.k3))).intValue()));
-            t += tstep;
-        }
-        return result;
     }
 
     private void drawCurve (PointArray p, Graphics g, Color c) {

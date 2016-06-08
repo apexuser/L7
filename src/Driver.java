@@ -34,5 +34,9 @@ public class Driver {
             return 0;
         }
     }
+
+    private void prepareRoute (PointArray route) {
+        
+    }
 }
 

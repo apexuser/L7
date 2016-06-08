@@ -9,7 +9,8 @@ public class Car {
     public double wheelRadius = 0.66;   // m
     public double consumption = 0.01;   // kg/s
 
-    public double airResistance = 1;   // -
+    public double airResistance = 0.8;   // -
+    public double frictionResistance = 24;
 
     // race parameters:
     public double velocityX = 0;
@@ -17,10 +18,6 @@ public class Car {
     public double x = 0;
     public double y = 0;
     public double orientation = 0;
-
-    public double getVelocity() {
-        return Math.sqrt(velocityX * velocityX + velocityY * velocityY);
-    }
 
     public double getCentrifugalForce(double turnRadius) {
         return Math.pow(getVelocity(), 2) / turnRadius;
@@ -39,16 +36,15 @@ public class Car {
         x = x + velocityX * time;
         burnFuel(traction, time);
     }
+    public void run (Command c) {
 
-    private double getResistance () {
-        return airResistance * Math.pow(getVelocity(), 2);
     }
 
-    public double getMass() {
-        return mass + fuel;
-    }
+    private double getResistance () { return airResistance * Math.pow(getVelocity(), 2) + frictionResistance * getVelocity(); }
 
-    private void burnFuel(double traction, double time) {
-        fuel -= consumption * traction * time;
-    }
+    public double getMass() { return mass + fuel; }
+
+    private void burnFuel(double traction, double time) { fuel -= consumption * traction * time; }
+
+    public double getVelocity() { return Math.sqrt(velocityX * velocityX + velocityY * velocityY); }
 }
