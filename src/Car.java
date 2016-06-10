@@ -11,6 +11,7 @@ public class Car {
 
     public double airResistance = 0.8;   // -
     public double frictionResistance = 24;
+    public double tireFriction = 20;
 
     // race parameters:
     public double velocityX = 0;

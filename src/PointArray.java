@@ -22,6 +22,13 @@ public class PointArray implements Serializable {
         points.add(idx, p);
     }
 
+    public void addUnique(Point p) {
+        int i = points.indexOf(p);
+        if (i < 0) {
+            add(p);
+        }
+    }
+
     public void copyFrom (PointArray newPoints) {
         for (Point p: newPoints.points) points.add(p);
     }

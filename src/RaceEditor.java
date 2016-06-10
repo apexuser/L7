@@ -73,6 +73,10 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         PointArray spline = as.renderSpline();
         PointArray evolute = as.renderEvolute();
         drawColored(spline, evolute, g);
+        //drawCurve(evolute, g, new Color(0, 128, 0));
+        Driver d = new Driver();
+        PointArray localMax = d.prepareRoute(spline, evolute);
+        drawPoints(localMax, g, new Color(0, 128, 0));
     }
 
     private void drawColored(PointArray spline, PointArray evolute, Graphics g) {
@@ -113,6 +117,11 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
             g.drawOval(p.get(p.getActive()).x - 3, p.get(p.getActive()).y - 3, 5, 5);
         }
 
+    }
+
+    private void drawPoints (PointArray p, Graphics g, Color c) {
+        g.setColor(c);
+        for (int i = 0; i < p.size(); i++) g.drawOval(p.get(i).x - 3, p.get(i).y - 3, 5, 5);
     }
 
     private Point circleCenter (Point pa, Point pb, Point pc) {
