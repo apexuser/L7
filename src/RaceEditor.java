@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.Point;
 import java.io.*;
 
 /**
@@ -21,7 +20,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
             @Override
             public void eventDispatched(AWTEvent event) {
                 MouseEvent evt = (MouseEvent) event;
-                Point p = evt.getPoint();
+                java.awt.Point p = evt.getPoint();
                 if (evt.getSource() != RaceEditor.this) {
                     p = SwingUtilities.convertPoint(evt.getComponent(), p, RaceEditor.this);
                 }
@@ -50,8 +49,22 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         if (points.size() > 2) {
             drawAkimaSpline(points, g, false);
         } else if (points.size() == 2) {
-            g.drawLine(points.get(0).x, points.get(0).y, points.get(1).x, points.get(1).y);
+            drawLine(points.get(0), points.get(1), g);
         }
+    }
+
+    private void drawLine(Point p1, Point p2, Graphics g) {
+        int x1 = new Double(p1.x).intValue();
+        int x2 = new Double(p2.x).intValue();
+        int y1 = new Double(p1.y).intValue();
+        int y2 = new Double(p2.y).intValue();
+        g.drawLine(x1, y1, x2, y2);
+    }
+
+    private void drawPoint(Point p, Graphics g) {
+        int x = new Double(p.x).intValue();
+        int y = new Double(p.y).intValue();
+        g.drawOval(x - 3, y - 3, 5, 5);
     }
 
     @Override
@@ -97,31 +110,31 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
             int d = new Double((max - r) / colorDistance).intValue();
             Color c = new Color(d, 0, 255 - d);
             g2.setColor(c);
-            g2.drawLine(spline.get(i).x, spline.get(i).y, spline.get(i + 1).x, spline.get(i + 1).y);
+            drawLine(spline.get(i), spline.get(i + 1), g);
         }
     }
 
     private void drawCurve (PointArray p, Graphics g, Color c) {
         g.setColor(c);
         for (int i = 0; i < p.size() - 1; i++) {
-            g.drawLine(p.get(i).x, p.get(i).y, p.get(i + 1).x, p.get(i + 1).y);
+            drawLine(p.get(i), p.get(i + 1), g);
         }
     }
 
     private void drawPoints (PointArray p, Graphics g) {
         g.setColor(Color.black);
-        for (int i = 0; i < p.size(); i++) g.drawOval(p.get(i).x - 3, p.get(i).y - 3, 5, 5);
+        for (int i = 0; i < p.size(); i++) drawPoint(p.get(i), g);
 
         if (p.getActive() >= 0) {
             g.setColor(Color.red);
-            g.drawOval(p.get(p.getActive()).x - 3, p.get(p.getActive()).y - 3, 5, 5);
+            drawPoint(p.get(p.getActive()), g);
         }
 
     }
 
     private void drawPoints (PointArray p, Graphics g, Color c) {
         g.setColor(c);
-        for (int i = 0; i < p.size(); i++) g.drawOval(p.get(i).x - 3, p.get(i).y - 3, 5, 5);
+        for (int i = 0; i < p.size(); i++) drawPoint(p.get(i), g);
     }
 
     private Point circleCenter (Point pa, Point pb, Point pc) {
@@ -137,10 +150,10 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
 
         int ox = new Double(((ax * ax + ay * ay) * (by - cy) +
                 (bx * bx + by * by) * (cy - ay) +
-                (cx * cx + cy * cy) * (ay - by)) / d).intValue() + pa.x;
+                (cx * cx + cy * cy) * (ay - by)) / d + pa.x).intValue();
         int oy = new Double(((ax * ax + ay * ay) * (cx - bx) +
                 (bx * bx + by * by) * (ax - cx) +
-                (cx * cx + cy * cy) * (bx - ax)) / d).intValue() + pa.y;
+                (cx * cx + cy * cy) * (bx - ax)) / d + pa.y).intValue();
         return new Point(ox, oy);
     }
 
@@ -149,16 +162,16 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         for (int i = 0; i < points.size() - 2; i++) {
             g.setColor(Color.magenta);
             Point p = circleCenter(points.get(i), points.get(i + 1), points.get(i + 2));
-            g.drawOval(p.x - 2, p.y - 2, 5, 5);
+            drawPoint(p, g);
 
             if (prev != null) {
-                g.drawLine(p.x, p.y, prev.x, prev.y);
+                drawLine(p, prev, g);
             }
             prev = p;
         }
     }
 
-    public void mouseMove(Point p) {
+    public void mouseMove(java.awt.Point p) {
         if (points.getActive() >= 0) {
             points.moveActive(p);
             repaint();

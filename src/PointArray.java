@@ -1,6 +1,5 @@
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.awt.Point;
 
 /**
  * Created by dima on 28/05/16.
@@ -71,9 +70,9 @@ public class PointArray implements Serializable {
         return res;
     }
 
-    public void moveActive(Point newP) {
-        get(getActive()).x = newP.x;
-        get(getActive()).y = newP.y;
+    public void moveActive(java.awt.Point newP) {
+        get(getActive()).x = new Double(newP.x).intValue();
+        get(getActive()).y = new Double(newP.y).intValue();
     }
 
     public double getDistance (Point p1, Point p2) {

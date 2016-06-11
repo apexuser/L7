@@ -37,7 +37,7 @@ public class AkimaSpline {
         double ddx = getDeriv2(t, ax);
         double ddy = getDeriv2(t, ay);
         double fraction = (dx * dx + dy * dy) / (dx * ddy - ddx * dy);
-        return new Point(new Double(x - dy * fraction).intValue(), new Double(y + dx * fraction).intValue());
+        return new Point(x - dy * fraction, y + dx * fraction);
     }
 
     private double getPoly(double x, AkimaArc a) {
@@ -168,11 +168,11 @@ public class AkimaSpline {
     private void calculateExtraPoints(Point p1, Point p2, Point p3, Point p4, Point p5) {
         p4.x = p3.x - p1.x + p2.x;
         p5.x = 2 * p3.x - p1.x;
-        double k1 = (double)(p2.y - p1.y)/ (double)(p2.x - p1.x);
-        double k2 = (double)(p3.y - p2.y)/ (double)(p3.x - p2.x);
-        p4.y = new Double((2 * k2 - k1) * (double)(p4.x - p3.x) + p3.y).intValue();
-        double k3 = (double)(p4.y - p3.y)/ (double)(p4.x - p3.x);
-        p5.y = new Double((2 * k3 - k2) * (double)(p5.x - p4.x) + p4.y).intValue();
+        double k1 = (p2.y - p1.y) / (p2.x - p1.x);
+        double k2 = (p3.y - p2.y) / (p3.x - p2.x);
+        p4.y = (2 * k2 - k1) * (p4.x - p3.x) + p3.y;
+        double k3 = (p4.y - p3.y)/ (p4.x - p3.x);
+        p5.y = (2 * k3 - k2) * (p5.x - p4.x) + p4.y;
     }
 
     public void close() {
