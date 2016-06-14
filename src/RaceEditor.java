@@ -9,7 +9,8 @@ import java.io.*;
 public class RaceEditor extends JFrame implements MouseListener, ActionListener {
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
-    private AkimaSpline as = new AkimaSpline(10, false, true, false);
+    private AkimaSpline as = new AkimaSpline(10, false, true, true);
+    //private Spline as = new CubicSpline(10, false, false, false);
     private BtnPanel btnPanel;
 
     public RaceEditor() {
@@ -84,12 +85,13 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
     private void drawAkimaSpline (PointArray points, Graphics g, boolean b) {
         as.buildSpline(points);
         PointArray spline = as.renderSpline();
-        PointArray evolute = as.renderEvolute();
-        drawColored(spline, evolute, g);
+        drawCurve(spline, g, Color.black);
+//        PointArray evolute = as.renderEvolute();
+//        drawColored(spline, evolute, g);
         //drawCurve(evolute, g, new Color(0, 128, 0));
-        Driver d = new Driver();
-        PointArray localMax = d.prepareRoute(spline, evolute);
-        drawPoints(localMax, g, new Color(0, 128, 0));
+//        Driver d = new Driver();
+//        PointArray localMax = d.prepareRoute(spline, evolute);
+//        drawPoints(localMax, g, new Color(0, 128, 0));
     }
 
     private void drawColored(PointArray spline, PointArray evolute, Graphics g) {

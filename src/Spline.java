@@ -37,7 +37,7 @@ public abstract class Spline {
     }
 
     protected void dividePoints(PointArray source, PointArray tx, PointArray ty, boolean divideBySeqNo) {
-        int nextT = 0;
+        double nextT = 0;
         PointArray xy = new PointArray();
         xy.copyFrom(source);
         addExtraPoints(xy);
@@ -49,12 +49,14 @@ public abstract class Spline {
             if (divideBySeqNo) {
                 nextT = i + 1;
             } else {
-                if (i < xy.size() - 1) nextT += new Double(xy.getDistance(xy.get(i), xy.get(i + 1))).intValue();
+                if (i < xy.size() - 1) nextT += xy.getDistance(xy.get(i), xy.get(i + 1));
             }
         }
     }
 
-    protected abstract void addExtraPoints(PointArray source);
+    protected void addExtraPoints(PointArray source) {
+
+    }
 
     protected abstract ArrayList<Arc> getSimpleSpline(PointArray source);
 
@@ -69,23 +71,50 @@ public abstract class Spline {
     public boolean isClosed() {
         return isClosed;
     }
+
     public PointArray renderSpline() {
+        if (isParametrized) return renderParametrizedSpline();
+                       else return renderSimpleSpline();
+    }
+
+    private PointArray renderSimpleSpline() {
         PointArray result = new PointArray();
 
-        for (int i = 0; i < arcX.size(); i++) {
-            result.addPointArray(renderArc(arcX.get(i), arcY.get(i)));
+        for (int i = 0; i < arc.size(); i++) {
+            result.addPointArray(renderSimpleArc(arc.get(i)));
         }
         return result;
     }
 
-    public PointArray renderArc(Arc ax, Arc ay) {
+    public PointArray renderSimpleArc(Arc xy) {
+        PointArray result = new PointArray();
+        double tstep = (xy.x2 - xy.x1) / segments;
+        double t = xy.x1;
+
+        for (int i = 0; i <= segments; i++) {
+            result.add(new Point(t, xy.k0 + t * (xy.k1 + t * (xy.k2 + t * xy.k3))));
+            t += tstep;
+        }
+        return result;
+    }
+
+    private PointArray renderParametrizedSpline() {
+        PointArray result = new PointArray();
+
+        for (int i = 0; i < arcX.size(); i++) {
+            result.addPointArray(renderParametrizedArc(arcX.get(i), arcY.get(i)));
+        }
+        return result;
+    }
+
+    public PointArray renderParametrizedArc(Arc ax, Arc ay) {
         PointArray result = new PointArray();
         double tstep = (ax.x2 - ax.x1) / segments;
         double t = 0;
 
         for (int i = 0; i <= segments; i++) {
-            result.add(new Point(new Double(ax.k0 + t * (ax.k1 + t * (ax.k2 + t * ax.k3))).intValue(),
-                    new Double(ay.k0 + t * (ay.k1 + t * (ay.k2 + t * ay.k3))).intValue()));
+            result.add(new Point(ax.k0 + t * (ax.k1 + t * (ax.k2 + t * ax.k3)),
+                                (ay.k0 + t * (ay.k1 + t * (ay.k2 + t * ay.k3)))));
             t += tstep;
         }
         return result;
