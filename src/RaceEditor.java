@@ -86,8 +86,8 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         as.buildSpline(points);
         PointArray spline = as.renderSpline();
         drawCurve(spline, g, Color.black);
-//        PointArray evolute = as.renderEvolute();
-//        drawColored(spline, evolute, g);
+        PointArray evolute = as.renderEvolute();
+        drawColored(spline, evolute, g);
         //drawCurve(evolute, g, new Color(0, 128, 0));
 //        Driver d = new Driver();
 //        PointArray localMax = d.prepareRoute(spline, evolute);

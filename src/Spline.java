@@ -1,8 +1,5 @@
 import java.util.ArrayList;
 
-/**
- * Created by dima on 14/06/16.
- */
 public abstract class Spline {
     protected int segments;
     protected boolean isClosed;
@@ -11,6 +8,10 @@ public abstract class Spline {
     protected ArrayList<Arc> arc;
     protected ArrayList<Arc> arcX;
     protected ArrayList<Arc> arcY;
+    protected PointArray points;
+    protected PointArray tx;
+    protected PointArray ty;
+    protected PointArray xy;
 
     public Spline (int segments, boolean isClosed, boolean isParametrized, boolean divideBySeqNo) {
         this.segments = segments;
@@ -22,120 +23,27 @@ public abstract class Spline {
         arcY = new ArrayList<Arc>();
     }
 
-    public void buildSpline(PointArray source) {
-        if (isParametrized) buildParametrizedSpline(source);
-        else arc = getSimpleSpline(source);
-    }
-
     protected void buildParametrizedSpline(PointArray source) {
-        PointArray tx = new PointArray();
-        PointArray ty = new PointArray();
-        dividePoints(source, tx, ty, divideBySeqNo);
-
+        xy = new PointArray(source);
+        if (isClosed) extendClosed(xy);
+        dividePoints(xy);
         arcX = getSimpleSpline(tx);
         arcY = getSimpleSpline(ty);
     }
 
-    protected void dividePoints(PointArray source, PointArray tx, PointArray ty, boolean divideBySeqNo) {
-        double nextT = 0;
-        PointArray xy = new PointArray();
-        xy.copyFrom(source);
-        addExtraPoints(xy);
-
-        for (int i = 0; i < xy.size(); i++) {
-            tx.add(new Point(nextT, xy.get(i).x));
-            ty.add(new Point(nextT, xy.get(i).y));
-
-            if (divideBySeqNo) {
-                nextT = i + 1;
-            } else {
-                if (i < xy.size() - 1) nextT += xy.getDistance(xy.get(i), xy.get(i + 1));
-            }
-        }
-    }
-
-    protected void addExtraPoints(PointArray source) {
+    protected void extendClosed(PointArray source) {
 
     }
 
     protected abstract ArrayList<Arc> getSimpleSpline(PointArray source);
 
-    public void close() {
-        isClosed = true;
+    public void buildSpline(PointArray source) {
+        if (isParametrized) buildParametrizedSpline(source);
+        else arc = getSimpleSpline(source);
+
     }
 
-    public void tear() {
-        isClosed = false;
-    }
-
-    public boolean isClosed() {
-        return isClosed;
-    }
-
-    public PointArray renderSpline() {
-        if (isParametrized) return renderParametrizedSpline();
-                       else return renderSimpleSpline();
-    }
-
-    private PointArray renderSimpleSpline() {
-        PointArray result = new PointArray();
-
-        for (int i = 0; i < arc.size(); i++) {
-            result.addPointArray(renderSimpleArc(arc.get(i)));
-        }
-        return result;
-    }
-
-    public PointArray renderSimpleArc(Arc xy) {
-        PointArray result = new PointArray();
-        double tstep = (xy.x2 - xy.x1) / segments;
-        double t = xy.x1;
-
-        for (int i = 0; i <= segments; i++) {
-            result.add(new Point(t, xy.k0 + t * (xy.k1 + t * (xy.k2 + t * xy.k3))));
-            t += tstep;
-        }
-        return result;
-    }
-
-    private PointArray renderParametrizedSpline() {
-        PointArray result = new PointArray();
-
-        for (int i = 0; i < arcX.size(); i++) {
-            result.addPointArray(renderParametrizedArc(arcX.get(i), arcY.get(i)));
-        }
-        return result;
-    }
-
-    public PointArray renderParametrizedArc(Arc ax, Arc ay) {
-        PointArray result = new PointArray();
-        double tstep = (ax.x2 - ax.x1) / segments;
-        double t = 0;
-
-        for (int i = 0; i <= segments; i++) {
-            result.add(new Point(ax.k0 + t * (ax.k1 + t * (ax.k2 + t * ax.k3)),
-                                (ay.k0 + t * (ay.k1 + t * (ay.k2 + t * ay.k3)))));
-            t += tstep;
-        }
-        return result;
-    }
-
-    public PointArray renderEvolute() {
-        PointArray result = new PointArray();
-
-        for (int i = 0; i < arcX.size(); i++) {
-            double t = 0;
-            double step = (arcX.get(i).x2 - arcX.get(i).x1) / (segments + 1);
-            for (int j = 0; j <= segments; j++) {
-                result.add(getEvolutePoint(t, arcX.get(i), arcY.get(i)));
-                t += step;
-            }
-        }
-
-        return result;
-    }
-
-    protected Point getEvolutePoint (double t, Arc ax, Arc ay) {
+    public Point getEvolutePoint (double t, Arc ax, Arc ay) {
         double x = getPoly(t, ax);
         double y = getPoly(t, ay);
         double dx = getDeriv1(t, ax);
@@ -156,5 +64,71 @@ public abstract class Spline {
 
     private double getDeriv2 (double x, Arc a) {
         return 2 * a.k2 + 6 * x * a.k3;
+    }
+
+    public void close() {
+        isClosed = true;
+    }
+
+    public void tear() {
+        isClosed = false;
+    }
+
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    public PointArray renderSpline() {
+        PointArray result = new PointArray();
+
+        for (int i = 0; i < arcX.size(); i++) {
+            result.addPointArray(renderArc(arcX.get(i), arcY.get(i)));
+        }
+        return result;
+    }
+
+    public PointArray renderArc(Arc ax, Arc ay) {
+        PointArray result = new PointArray();
+        double tstep = (ax.x2 - ax.x1) / segments;
+        double t = 0;
+
+        for (int i = 0; i <= segments; i++) {
+            result.add(new Point(ax.k0 + t * (ax.k1 + t * (ax.k2 + t * ax.k3)),
+                    ay.k0 + t * (ay.k1 + t * (ay.k2 + t * ay.k3))));
+            t += tstep;
+        }
+        return result;
+    }
+
+    public PointArray renderEvolute() {
+        PointArray result = new PointArray();
+
+        for (int i = 0; i < arcX.size(); i++) {
+            double t = 0;
+            double step = (arcX.get(i).x2 - arcX.get(i).x1) / (segments + 1);
+            for (int j = 0; j <= segments; j++) {
+                result.add(getEvolutePoint(t, arcX.get(i), arcY.get(i)));
+                t += step;
+            }
+        }
+
+        return result;
+    }
+
+    protected void dividePoints(PointArray xy) {
+        double nextT = 0;
+        tx = new PointArray();
+        ty = new PointArray();
+
+        for (int i = 0; i < xy.size(); i++) {
+            tx.add(new Point(nextT, xy.get(i).x));
+            ty.add(new Point(nextT, xy.get(i).y));
+
+            if (divideBySeqNo) {
+                nextT = i + 1;
+            } else {
+                if (i < xy.size() - 1) nextT += xy.getDistance(xy.get(i), xy.get(i + 1));
+            }
+        }
     }
 }

@@ -9,8 +9,17 @@ public class PointArray implements Serializable {
     public int active;
 
     public PointArray () {
+        init();
+    }
+
+    private void init() {
         points = new ArrayList<Point>();
         active = -1;
+    }
+
+    public PointArray(PointArray source) {
+        init();
+        copyFrom(source);
     }
 
     public void add(Point p) {

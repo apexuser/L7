@@ -4,17 +4,58 @@ import java.util.ArrayList;
  * Created by dima on 29/05/16.
  */
 public class AkimaSpline extends Spline {
+    private PointArray extendedSource;
 
     public AkimaSpline(int segments, boolean isClosed, boolean isParametrized, boolean divideBySeqNo) {
         super(segments, isClosed, isParametrized, divideBySeqNo);
     }
 
     @Override
+    protected void extendClosed(PointArray source) {
+        // points before:
+        Point p0 = source.get(0);
+        Point p1 = source.get(1);
+        Point p2 = source.get(2);
+        // points after:
+        Point pn1 = source.get(source.size() - 1);
+        Point pn2 = source.get(source.size() - 2);
+
+        source.add(0, pn2);
+        source.add(1, pn1);
+        source.add(p0);
+        source.add(p1);
+        source.add(p2);
+    }
+
+    private void extendUnclosed(PointArray source) {
+        addPoints(source, source.get(2), source.get(1), source.get(0), 0, 0);
+        int last = source.size() - 1;
+        addPoints(source, source.get(last - 2), source.get(last - 1), source.get(last), last + 1, last + 2);
+    }
+
+    private void addPoints(PointArray source, Point p1, Point p2, Point p3, int pos1, int pos2) {
+        Point p4 = new Point();
+        Point p5 = new Point();
+        calculateExtraPoints(p1, p2, p3, p4, p5);
+        source.add(pos1, p4);
+        source.add(pos2, p5);
+
+    }
+
+    private void calculateExtraPoints(Point p1, Point p2, Point p3, Point p4, Point p5) {
+        p4.x = p3.x - p1.x + p2.x;
+        p5.x = 2 * p3.x - p1.x;
+        double k1 = (p2.y - p1.y) / (p2.x - p1.x);
+        double k2 = (p3.y - p2.y) / (p3.x - p2.x);
+        p4.y = (2 * k2 - k1) * (p4.x - p3.x) + p3.y;
+        double k3 = (p4.y - p3.y)/ (p4.x - p3.x);
+        p5.y = (2 * k3 - k2) * (p5.x - p4.x) + p4.y;
+    }
+
     protected ArrayList<Arc> getSimpleSpline(PointArray source) {
         ArrayList<Arc> result = new ArrayList<Arc>();
-        PointArray extendedSource = new PointArray();
-        extendedSource.copyFrom(source);
-        addExtraPoints(extendedSource);
+        extendedSource = new PointArray(source);
+        if (!isClosed) extendUnclosed(extendedSource);
         ArrayList<Double> t = getTArray(extendedSource);
 
         for (int i = 2; i < extendedSource.size() - 3; i++) {
@@ -56,55 +97,4 @@ public class AkimaSpline extends Spline {
         
         return t;
     }
-
-    @Override
-    protected void addExtraPoints(PointArray source) {
-         if (!isClosed) {
-             // points before:
-             Point p1 = source.get(2);
-             Point p2 = source.get(1);
-             Point p3 = source.get(0);
-             Point p4 = new Point();
-             Point p5 = new Point();
-             calculateExtraPoints(p1, p2, p3, p4, p5);
-             source.add(0, p4);
-             source.add(0, p5);
-
-             // points after:
-             int last = source.size() - 1;
-             p1 = source.get(last - 2);
-             p2 = source.get(last - 1);
-             p3 = source.get(last);
-             p4 = new Point();
-             p5 = new Point();
-             calculateExtraPoints(p1, p2, p3, p4, p5);
-             source.add(p4);
-             source.add(p5);
-         } else {
-            // points before:
-            Point p0 = source.get(0);
-            Point p1 = source.get(1);
-            Point p2 = source.get(2);
-            // points after:
-            Point pn = source.get(source.size() - 1);
-            Point pn1 = source.get(source.size() - 2);
-
-            source.add(0, pn1);
-            source.add(1, pn);
-            source.add(p0);
-            source.add(p1);
-            source.add(p2);
-        }
-    }
-
-    private void calculateExtraPoints(Point p1, Point p2, Point p3, Point p4, Point p5) {
-        p4.x = p3.x - p1.x + p2.x;
-        p5.x = 2 * p3.x - p1.x;
-        double k1 = (p2.y - p1.y) / (p2.x - p1.x);
-        double k2 = (p3.y - p2.y) / (p3.x - p2.x);
-        p4.y = (2 * k2 - k1) * (p4.x - p3.x) + p3.y;
-        double k3 = (p4.y - p3.y)/ (p4.x - p3.x);
-        p5.y = (2 * k3 - k2) * (p5.x - p4.x) + p4.y;
-    }
-
 }
