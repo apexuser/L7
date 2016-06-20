@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ArrayList;
 
 /**
  * Created by dima on 28/05/16.
@@ -9,8 +10,8 @@ import java.io.*;
 public class RaceEditor extends JFrame implements MouseListener, ActionListener {
     private static final long serialVersionUID = 1L;
     private PointArray points = new PointArray();
-    private AkimaSpline as = new AkimaSpline(10, false, true, true);
-    //private Spline as = new CubicSpline(10, false, false, false);
+    private AkimaSpline as = new AkimaSpline(10, false, true, false);
+//    private Spline as = new CubicSpline(10, false, false, false);
     private BtnPanel btnPanel;
 
     public RaceEditor() {
@@ -39,7 +40,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         btnPanel.loadTrack.addActionListener(this);
         btnPanel.runRace.addActionListener(this);
 
-        this.add(new JLabel(new ImageIcon("f1.png")));
+        //this.add(new JLabel(new ImageIcon("f1.png")));
     }
 
     @Override
@@ -87,11 +88,69 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         PointArray spline = as.renderSpline();
         drawCurve(spline, g, Color.black);
         PointArray evolute = as.renderEvolute();
-        drawColored(spline, evolute, g);
+        drawColored2(spline, as.renderRadius(), g);
+        drawCircles(as.renderRadius(), evolute, spline, g, new Color(0, 128, 0));
+//        drawColored(spline, evolute, g);
         //drawCurve(evolute, g, new Color(0, 128, 0));
 //        Driver d = new Driver();
 //        PointArray localMax = d.prepareRoute(spline, evolute);
 //        drawPoints(localMax, g, new Color(0, 128, 0));
+    }
+
+    private void drawCircles(ArrayList<Double> radius, PointArray evolute, PointArray s, Graphics g, Color c) {
+        for (int i = 0; i < evolute.size(); i++) {
+            if (i == 12) {
+                g.setColor(c);
+
+                Double r1 = Math.abs(radius.get(i));
+                Double r2 = s.getDistance(s.get(i), evolute.get(i));
+
+                int x1 = new Double(evolute.get(i).x - r1).intValue();
+                int y1 = new Double(evolute.get(i).y - r1).intValue();
+                int w1 = 2 * r1.intValue();
+                int h1 = 2 * r1.intValue();
+
+                int x2 = new Double(evolute.get(i).x - r2).intValue();
+                int y2 = new Double(evolute.get(i).y - r2).intValue();
+                int w2 = 2 * r2.intValue();
+                int h2 = 2 * r2.intValue();
+
+                g.drawOval(x1, y1, w1, h1);
+                drawPoint(evolute.get(i), g);
+                g.setColor(Color.red);
+                g.drawOval(x2, y2, w2, h2);
+                System.out.println(r1);
+            }
+        }
+    }
+
+    private void drawColored2(PointArray spline, ArrayList<Double> radius, Graphics g) {
+        //find max and min
+        double max = 0;
+        double min = 1000000;
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(2));
+
+//        System.out.println(spline.size());
+//        System.out.println(radius.size());
+
+        for (int i = 0; i < spline.size(); i++) {
+            double r = Math.log(radius.get(i));
+            if (r > max) max = r;
+            if (r < min) min = r;
+
+       //     System.out.println(radius.get(i));
+        }
+        double colorDistance = (max - min) / 255;
+
+        for (int i = 0; i < spline.size() - 1; i++) {
+            double r = Math.log(radius.get(i));
+            int d = new Double((max - r) / colorDistance).intValue();
+            Color c = new Color(d, 0, 255 - d);
+            g2.setColor(c);
+            drawLine(spline.get(i), spline.get(i + 1), g);
+        }
+
     }
 
     private void drawColored(PointArray spline, PointArray evolute, Graphics g) {
@@ -100,10 +159,14 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         double min = 1000000;
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(2));
+
+        System.out.println("evolute");
+
         for (int i = 0; i < spline.size(); i++) {
             double r = Math.log(spline.getDistance(spline.get(i), evolute.get(i)));
             if (r > max) max = r;
             if (r < min) min = r;
+            System.out.println(spline.getDistance(spline.get(i), evolute.get(i)));
         }
         double colorDistance = (max - min) / 255;
 

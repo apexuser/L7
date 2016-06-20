@@ -21,4 +21,8 @@ public class Arc {
         this.x2 = x2;
         this.y2 = y2;
     }
+
+    public void debugPrint() {
+        System.out.println(" k0 = " + k0 + " k1 = " + k1 + " k2 = " + k2 + " k3 = " + k3 + " x1 = " + x1 + " y1 = " + y1);
+    }
 }

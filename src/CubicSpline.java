@@ -12,6 +12,7 @@ public class CubicSpline extends Spline {
     @Override
     protected ArrayList<Arc> getSimpleSpline(PointArray source) {
         ArrayList<Arc> result = new ArrayList<Arc>();
+
         int n = source.size();
 
         for (int i = 0; i < n; i++) {
