@@ -1,8 +1,13 @@
 import java.util.ArrayList;
 
 /**
- * Created by dima on 29/05/16.
+ * Implementation of Akima spline.
+ * Class creates additional points and make all required calculations.
+ * For closed curves: points 0 and 1 are used as additional points for the end of a curve,
+ * points N (last point) and (N - 1) are used as additional points for the begginnig of a curve.
+ *
  */
+
 public class AkimaSpline extends Spline {
     private PointArray extendedSource;
 

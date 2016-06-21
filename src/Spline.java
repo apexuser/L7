@@ -1,5 +1,21 @@
 import java.util.ArrayList;
 
+/**
+ * Class represents a spline as a number of arcs.
+ * It could be a simple spline or parametrized spline.
+ * Parameters:
+ *     segments - count of segments for rendering
+ *     isClosed - true for closed curve (it should be only parametrised one)
+ *     isParametrized - it's obvious
+ *     divideBySeqNo - used for parametrized curves. If true, values of parameter t are sequence numbers of points.
+ *                     If false, values of parameter t are distances between points, t(0) = 0.
+ *
+ *  Methods:
+ *      buildSpline - runs spline calculations (creating arcs, calculating polynom coefficients)
+ *      render*     - render spline or evolute
+ *
+ */
+
 public abstract class Spline {
     protected int segments;
     protected boolean isClosed;

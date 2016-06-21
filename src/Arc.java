@@ -1,7 +1,16 @@
 import java.util.ArrayList;
 
 /**
- * Created by dima on 05/06/16.
+ * Class Arc represents Cubic parabola.
+ * (x1, y1) and (x2, y2) are coordinates of start and end points of arc respectively.
+ * kk0, k1, k2, k3 are coefficients of cubic parabola equation: y(x) = k0 + k1 * x + k2 * x^2 + k3 * x^3
+ *
+ * Class have methods for calculation:
+ *     value of equation and its first and second derivatives
+ *     render arc (as sequence of line segments) and its evolute
+ *     render arc and evolute in parametrized form (additional arc have to be passed as parameter)
+ *     calculate curvature radius
+ *
  */
 public class Arc {
     public double k0;
@@ -36,10 +45,6 @@ public class Arc {
         return 2 * k2 + 6 * x * k3;
     }
 
-    public void debugPrint() {
-        System.out.println(" k0 = " + k0 + " k1 = " + k1 + " k2 = " + k2 + " k3 = " + k3 + " x1 = " + x1 + " y1 = " + y1);
-    }
-
     public PointArray renderSimpleArc(int segments) {
         PointArray result = new PointArray();
         double tstep = (x2 - x1) / segments;
@@ -70,16 +75,20 @@ public class Arc {
         double step = (x2 - x1) / segments;
 
         for (int j = 0; j <= segments; j++) {
-            double dx = get1Derivative(t);
-            double dy = ay.get1Derivative(t);
-            double ddx = get2Derivative(t);
-            double ddy = ay.get2Derivative(t);
-
-            result.add(new Double(Math.pow((dx * dx + dy * dy), 3/2) / (dx * ddy - dy * ddx)));
+            result.add(getParametrizedRadius(ay, t));
             t += step;
         }
 
         return result;
+    }
+
+    public Double getParametrizedRadius(Arc ay, double t) {
+        double dx = get1Derivative(t);
+        double dy = ay.get1Derivative(t);
+        double ddx = get2Derivative(t);
+        double ddy = ay.get2Derivative(t);
+
+        return Math.abs(Math.pow((dx * dx + dy * dy), 1.5) / (dx * ddy - dy * ddx));
     }
 
     public Point getParametrizedEvolutePoint(double t, Arc ay) {
