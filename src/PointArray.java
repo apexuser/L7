@@ -69,7 +69,7 @@ public class PointArray implements Serializable {
         double dmin = 10000;
         double d;
         for (int i = 0; i < points.size(); i++) {
-            d = getDistance(p, points.get(i));
+            d = p.getDistanceTo(points.get(i));
             if (d < dmin && d < distance) {
                 res = i;
                 dmin = d;
@@ -82,11 +82,6 @@ public class PointArray implements Serializable {
     public void moveActive(java.awt.Point newP) {
         get(getActive()).x = new Double(newP.x).intValue();
         get(getActive()).y = new Double(newP.y).intValue();
-    }
-
-    public double getDistance (Point p1, Point p2) {
-        return Math.sqrt(Math.pow(p1.x - p2.x, 2) +
-                         Math.pow(p1.y - p2.y, 2));
     }
 
     public void activate (int n) {

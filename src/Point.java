@@ -16,4 +16,9 @@ public class Point implements Serializable {
         this.x = 0;
         this.y = 0;
     }
+
+    public double getDistanceTo(Point p) {
+        return Math.sqrt(Math.pow(x - p.x, 2) +
+                         Math.pow(y - p.y, 2));
+    }
 }

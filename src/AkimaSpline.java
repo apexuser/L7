@@ -102,4 +102,17 @@ public class AkimaSpline extends Spline {
         
         return t;
     }
+
+    public Trajectory buildTrajectory (PointArray points) {
+        Trajectory t = new Trajectory();
+        buildSpline(points);
+        PointArray route = renderSpline();
+        ArrayList<Double> r = renderRadius();
+
+        for (int i = 0; i < route.size(); i++) {
+            t.addPoint(route.get(i), r.get(i));
+        }
+
+        return t;
+    }
 }

@@ -124,7 +124,7 @@ public abstract class Spline {
             if (divideBySeqNo) {
                 nextT = i + 1;
             } else {
-                if (i < xy.size() - 1) nextT += xy.getDistance(xy.get(i), xy.get(i + 1));
+                if (i < xy.size() - 1) nextT += xy.get(i).getDistanceTo(xy.get(i + 1));
             }
         }
     }

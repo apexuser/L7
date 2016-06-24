@@ -40,19 +40,58 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         btnPanel.loadTrack.addActionListener(this);
         btnPanel.runRace.addActionListener(this);
 
-        //this.add(new JLabel(new ImageIcon("f1.png")));
+        this.add(new JLabel(new ImageIcon("f1.png")));
     }
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
 
+        //debugArcPaint(g);
+
         drawPoints(points, g);
         if (points.size() > 2) {
             drawAkimaSpline(points, g, false);
+            testRunCar();
         } else if (points.size() == 2) {
             drawLine(points.get(0), points.get(1), g);
         }
+
+    }
+
+    private void testRunCar() {
+        Driver d = new Driver();
+        PointArray t = d.prepareRoute(points);
+    }
+
+    private void debugArcPaint(Graphics g) {
+        Arc x = new Arc( 600, -10, -7, 1, 0,  600, 10,  800);
+        Arc y = new Arc( 300, -20, -8, 1, 0,  300, 10,  300);
+
+        PointArray pa = x.renderParametrizedArc(y, 20);
+        drawCurve(pa, g, Color.blue);
+
+        for (int i = 0; i < 10; i++) {
+            double t = i;
+            Point pe = x.getParametrizedEvolutePoint(t, y);
+            drawPoint(pe, g);
+
+            int r = x.getParametrizedRadius(y, t).intValue();
+            g.setColor(Color.red);
+            drawCircle(pe, r, g);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void drawCircle(Point center, int radius, Graphics g) {
+        int x = new Double(center.x).intValue() - radius;
+        int y = new Double(center.y).intValue() - radius;
+
+        g.drawOval(x, y, 2 * radius, 2 * radius);
     }
 
     private void drawLine(Point p1, Point p2, Graphics g) {
@@ -87,9 +126,9 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         as.buildSpline(points);
         PointArray spline = as.renderSpline();
         drawCurve(spline, g, Color.black);
-        PointArray evolute = as.renderEvolute();
+        PointArray evolute = as.renderParametrizedEvolute();
         drawColored2(spline, as.renderRadius(), g);
-        drawCircles(as.renderRadius(), evolute, spline, g, new Color(0, 128, 0));
+//        drawCircles(as.renderRadius(), evolute, spline, g, new Color(0, 128, 0));
 //        drawColored(spline, evolute, g);
         //drawCurve(evolute, g, new Color(0, 128, 0));
 //        Driver d = new Driver();
@@ -103,7 +142,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
                 g.setColor(c);
 
                 Double r1 = Math.abs(radius.get(i));
-                Double r2 = s.getDistance(s.get(i), evolute.get(i));
+                Double r2 = s.get(i).getDistanceTo(evolute.get(i));
 
                 int x1 = new Double(evolute.get(i).x - r1).intValue();
                 int y1 = new Double(evolute.get(i).y - r1).intValue();
@@ -163,15 +202,15 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         System.out.println("evolute");
 
         for (int i = 0; i < spline.size(); i++) {
-            double r = Math.log(spline.getDistance(spline.get(i), evolute.get(i)));
+            double r = Math.log(spline.get(i).getDistanceTo(evolute.get(i)));
             if (r > max) max = r;
             if (r < min) min = r;
-            System.out.println(spline.getDistance(spline.get(i), evolute.get(i)));
+            System.out.println(spline.get(i).getDistanceTo(evolute.get(i)));
         }
         double colorDistance = (max - min) / 255;
 
         for (int i = 0; i < spline.size() - 1; i++) {
-            double r = Math.log(spline.getDistance(spline.get(i), evolute.get(i)));
+            double r = Math.log(spline.get(i).getDistanceTo(evolute.get(i)));
             int d = new Double((max - r) / colorDistance).intValue();
             Color c = new Color(d, 0, 255 - d);
             g2.setColor(c);

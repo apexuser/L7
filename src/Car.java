@@ -27,11 +27,7 @@ public class Car {
     //public double steer = 0;
 
     public void run (double traction, double steer, double breaks, double time) {
-        double currentTorque = torque * traction;
-        double force = currentTorque / wheelRadius;
-        double fractionForce = getResistance();
-
-        double deltaVelocity = (force - fractionForce) * time / getMass();
+        double deltaVelocity = getAcceleration(traction, 5) * time;
 
         velocityX = velocityX + deltaVelocity;
         x = x + velocityX * time;
@@ -41,11 +37,23 @@ public class Car {
 
     }
 
-    private double getResistance () { return airResistance * Math.pow(getVelocity(), 2) + frictionResistance * getVelocity(); }
+    private double getFullFrictionResistance() { return airResistance * Math.pow(getVelocity(), 2) + frictionResistance * getVelocity(); }
 
     public double getMass() { return mass + fuel; }
 
     private void burnFuel(double traction, double time) { fuel -= consumption * traction * time; }
 
     public double getVelocity() { return Math.sqrt(velocityX * velocityX + velocityY * velocityY); }
+
+    public double getAcceleration (double throttle, int gear) {
+        double currentTorque = torque * throttle;
+        double force = currentTorque / wheelRadius;
+        double fractionForce = getFullFrictionResistance();
+
+        return (force - fractionForce) / getMass();
+    }
+
+    public double getBrakingAcceleration () {
+        return (getFullFrictionResistance() + tireFriction) / getMass();
+    }
 }

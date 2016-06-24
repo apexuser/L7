@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -12,8 +11,11 @@ public class Driver {
     private double precision = 0.8;
     private Car car;
 
+    private Trajectory trajectory;
+
     public Driver () {
         car = new Car();
+        trajectory = new Trajectory();
     }
 
     public Command getCommand(Command expectedCommand) {
@@ -42,37 +44,39 @@ public class Driver {
         }
     }
 
-    public PointArray prepareRoute(PointArray route, PointArray evolute) {
+    public PointArray prepareRoute(PointArray points) {
         PointArray result = new PointArray();
-        ArrayList<Double> radius = new ArrayList<Double>();
-        int distance = 5;
-
-        for (int i = 0; i < route.size() - 1; i++) {
-            radius.add(route.getDistance(route.get(i), evolute.get(i)));
-        }
-
-        double sgnCurrent;
-        double sgnPrevious = Math.signum(radius.get(1) - radius.get(0));
-
-        for (int i = 2; i < radius.size(); i++) {
-            sgnCurrent = Math.signum(radius.get(i) - radius.get(i - 1));
-
-            System.out.println(radius.get(i));
-
-            if (sgnCurrent != sgnPrevious) {
-                if (isLocalMax(radius, i, distance)) {
-                    result.addUnique(route.get(i));
-//                    System.out.println(" Added value: " + radius.get(i));
-                } else {
-//                    System.out.println("");
-                }
-            } else {
-//                System.out.println("");
-            }
-
-            sgnPrevious = sgnCurrent;
-        }
-
+        AkimaSpline as = new AkimaSpline(10, false, true, false);
+        Trajectory t = as.buildTrajectory(points);
+//        ArrayList<Double> radius = new ArrayList<Double>();
+//        int distance = 5;
+//
+//        for (int i = 0; i < route.size() - 1; i++) {
+//            radius.add(route.get(i).getDistanceTo(evolute.get(i)));
+//        }
+//
+//        double sgnCurrent;
+//        double sgnPrevious = Math.signum(radius.get(1) - radius.get(0));
+//
+//        for (int i = 2; i < radius.size(); i++) {
+//            sgnCurrent = Math.signum(radius.get(i) - radius.get(i - 1));
+//
+//            System.out.println(radius.get(i));
+//
+//            if (sgnCurrent != sgnPrevious) {
+//                if (isLocalMax(radius, i, distance)) {
+//                    result.addUnique(route.get(i));
+////                    System.out.println(" Added value: " + radius.get(i));
+//                } else {
+////                    System.out.println("");
+//                }
+//            } else {
+////                System.out.println("");
+//            }
+//
+//            sgnPrevious = sgnCurrent;
+//        }
+//
         return result;
     }
 
