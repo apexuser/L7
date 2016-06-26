@@ -5,7 +5,10 @@ public class TrajectoryPoint {
     private Point p;
     private Point prev;
     private Point next;
+//    private double vDrift;
     public double radius;
+
+    public double vPlan;
     public double angle;
 
     public TrajectoryPoint (Point p, Point prev, Point next, double radius) {
@@ -46,15 +49,11 @@ public class TrajectoryPoint {
         setAngle();
     }
 
-    public Point getP() {
-        return p;
-    }
+    public double getDistance() { return p.getDistanceTo(next); }
 
-    public Point getPrev() {
-        return prev;
-    }
+    public Point getP() { return p; }
 
-    public Point getNext() {
-        return next;
-    }
+    public Point getPrev() { return prev; }
+
+    public Point getNext() { return next; }
 }

@@ -47,7 +47,11 @@ public class Driver {
     public PointArray prepareRoute(PointArray points) {
         PointArray result = new PointArray();
         AkimaSpline as = new AkimaSpline(10, false, true, false);
-        Trajectory t = as.buildTrajectory(points);
+        Trajectory t = as.getTrajectory(points);
+        t.makeTrajectoryPlan(car);
+
+
+
 //        ArrayList<Double> radius = new ArrayList<Double>();
 //        int distance = 5;
 //

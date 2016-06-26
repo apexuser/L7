@@ -5,17 +5,33 @@ import java.util.ArrayList;
  */
 public class Trajectory {
     public ArrayList<TrajectoryPoint> trajectoryPoints;
+//    public Car car;
 
     public Trajectory () {
         trajectoryPoints = new ArrayList<>();
+//        this.car = car;
     }
+
+
 
     public int size () {
         return trajectoryPoints.size();
     }
 
+    public void makeTrajectoryPlan (Car car) {
+        double vPlan = 1000000; // just very big number
+        double vnext;
+        double vmax;
+        for (int i = size() - 1; i >=0; i--) {
+            vnext = vPlan;
+            vmax = car.getMaxTurnSpeed(tp(i).radius);
+            vPlan = Math.min(vmax, car.getVBrake(vnext, tp(i).getDistance()));
+            tp(i).vPlan = vPlan;
+        }
+    }
+
     public void addPoint (Point p, double radius) {
-        int n = trajectoryPoints.size();
+        int n = size();
         Point np;
         Point pp;
         switch (n) {
@@ -31,5 +47,9 @@ public class Trajectory {
                      trajectoryPoints.get(0).setPrev(p);
                      trajectoryPoints.get(n - 1).setNext(p);
         }
+    }
+
+    private TrajectoryPoint tp (int i) {
+        return trajectoryPoints.get(i);
     }
 }

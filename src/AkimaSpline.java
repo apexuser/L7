@@ -103,7 +103,7 @@ public class AkimaSpline extends Spline {
         return t;
     }
 
-    public Trajectory buildTrajectory (PointArray points) {
+    public Trajectory getTrajectory(PointArray points) {
         Trajectory t = new Trajectory();
         buildSpline(points);
         PointArray route = renderSpline();

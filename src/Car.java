@@ -37,6 +37,10 @@ public class Car {
 
     }
 
+    public double getMaxTurnSpeed(double radius) { return Math.sqrt(tireFriction * radius); }
+
+    public double getVBrake (double vnext, double distance) { return Math.sqrt(vnext * vnext - 2 * tireFriction * distance); }
+
     private double getFullFrictionResistance() { return airResistance * Math.pow(getVelocity(), 2) + frictionResistance * getVelocity(); }
 
     public double getMass() { return mass + fuel; }
