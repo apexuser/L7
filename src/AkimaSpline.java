@@ -9,7 +9,6 @@ import java.util.ArrayList;
  */
 
 public class AkimaSpline extends Spline {
-    private PointArray extendedSource;
 
     public AkimaSpline(int segments, boolean isClosed, boolean isParametrized, boolean divideBySeqNo) {
         super(segments, isClosed, isParametrized, divideBySeqNo);
@@ -59,7 +58,7 @@ public class AkimaSpline extends Spline {
 
     protected ArrayList<Arc> getSimpleSpline(PointArray source) {
         ArrayList<Arc> result = new ArrayList<Arc>();
-        extendedSource = new PointArray(source);
+        PointArray extendedSource = new PointArray(source);
         if (!isClosed) extendUnclosed(extendedSource);
         ArrayList<Double> t = getTArray(extendedSource);
 
@@ -77,7 +76,7 @@ public class AkimaSpline extends Spline {
         double k2 = (3 * dydx - 2 * t1 - t2) / dx;
         double k3 = (t1 + t2 - 2 * dydx) / Math.pow(dx, 2);
 
-        return new Arc(k0, k1, k2, k3, p1.x, p1.y, p2.x, p2.y);
+        return new Arc(k0, k1, k2, k3, p1.x, p2.x);
     }
 
     private static ArrayList<Double> getTArray(PointArray source) {

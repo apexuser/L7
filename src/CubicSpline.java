@@ -19,7 +19,7 @@ public class CubicSpline extends Spline {
             Point p = source.get(i);
             Point pnx = (i == n - 1) ? new Point(0, 0) : source.get(i + 1);
 
-            result.add(new Arc(p.y, 0, 0, 0, p.x, p.y, pnx.x, pnx.y));
+            result.add(new Arc(p.y, 0, 0, 0, p.x, pnx.x));
         }
 
         result.get(0).k2 = 0.0; result.get(n - 1).k2 = 0.0;
@@ -54,9 +54,9 @@ public class CubicSpline extends Spline {
         }
 
         // multiply k2 * 2 and k3 * 6:
-        for (int i = 0; i < result.size(); i++) {
-            result.get(i).k2 = result.get(i).k2 / 2;
-            result.get(i).k3 = result.get(i).k3 / 6;
+        for (Arc aResult : result) {
+            aResult.k2 = aResult.k2 / 2;
+            aResult.k3 = aResult.k3 / 6;
         }
 
         return result;

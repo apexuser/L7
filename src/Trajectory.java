@@ -25,7 +25,7 @@ public class Trajectory {
         for (int i = size() - 1; i >=0; i--) {
             vnext = vPlan;
             vmax = car.getMaxTurnSpeed(tp(i).radius);
-            vPlan = Math.min(vmax, car.getVBrake(vnext, tp(i).getDistance()));
+            vPlan = Math.min(vmax, car.getSpeedBeforeBrake(vnext, tp(i).getDistance()));
             tp(i).vPlan = vPlan;
         }
     }

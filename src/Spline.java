@@ -17,16 +17,16 @@ import java.util.ArrayList;
  */
 
 public abstract class Spline {
-    protected int segments;
+    private int segments;
     protected boolean isClosed;
-    protected boolean isParametrized;
-    protected boolean divideBySeqNo;
-    protected ArrayList<Arc> arc;
-    protected ArrayList<Arc> arcX;
-    protected ArrayList<Arc> arcY;
-    protected PointArray tx;
-    protected PointArray ty;
-    protected PointArray xy;
+    private boolean isParametrized;
+    private boolean divideBySeqNo;
+    private ArrayList<Arc> arc;
+    private ArrayList<Arc> arcX;
+    private ArrayList<Arc> arcY;
+    private PointArray tx;
+    private PointArray ty;
+    private PointArray xy;
 
     public Spline (int segments, boolean isClosed, boolean isParametrized, boolean divideBySeqNo) {
         this.segments = segments;
@@ -38,7 +38,7 @@ public abstract class Spline {
         arcY = new ArrayList<Arc>();
     }
 
-    protected void buildParametrizedSpline(PointArray source) {
+    private void buildParametrizedSpline(PointArray source) {
         xy = new PointArray(source);
         if (isClosed) extendClosed(xy);
         dividePoints(xy);
@@ -78,8 +78,8 @@ public abstract class Spline {
     private PointArray renderSimpleSpline() {
         PointArray result = new PointArray();
 
-        for (int i = 0; i < arc.size(); i++) {
-            result.addPointArray(arc.get(i).renderSimpleArc(segments));
+        for (Arc anArc : arc) {
+            result.addPointArray(anArc.renderSimpleArc(segments));
         }
         return result;
     }
@@ -112,7 +112,7 @@ public abstract class Spline {
         return result;
     }
 
-    protected void dividePoints(PointArray xy) {
+    private void dividePoints(PointArray xy) {
         double nextT = 0;
         tx = new PointArray();
         ty = new PointArray();

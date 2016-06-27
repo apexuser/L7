@@ -4,11 +4,11 @@ import javax.swing.*;
  * Created by dima on 06/06/16.
  */
 public class BtnPanel extends JPanel {
-    public JButton closeSpline;
-    public JButton resetSpline;
-    public JButton saveTrack;
-    public JButton loadTrack;
-    public JButton runRace;
+    public final JButton closeSpline;
+    public final JButton resetSpline;
+    public final JButton saveTrack;
+    public final JButton loadTrack;
+    public final JButton runRace;
 
     public BtnPanel() {
         closeSpline = initButton("Замкнуть",  10,  10, 100, 30, "close");

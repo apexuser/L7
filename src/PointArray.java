@@ -1,12 +1,15 @@
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
  * Created by dima on 28/05/16.
  */
-public class PointArray implements Serializable {
+@SuppressWarnings("ALL")
+public class PointArray {
     private ArrayList<Point> points;
-    public int active;
+    private int active;
+    private String fileName = "test.track";
+    private String delimiter = ",";
 
     public PointArray () {
         init();
@@ -77,6 +80,46 @@ public class PointArray implements Serializable {
         }
 
         return res;
+    }
+
+    public void save() {
+        PrintWriter out;
+        try {
+            out = new PrintWriter(fileName);
+            for (Point p : points) {
+                out.println(new Double(p.x).intValue() + delimiter + new Double(p.y).intValue());
+            }
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void load() {
+        BufferedReader br = null;
+        points = new ArrayList<>();
+        try {
+            br = new BufferedReader(new FileReader(fileName));
+            String line = br.readLine();
+
+            while (line != null) {
+                int x = Integer.parseInt(line.substring(0, line.indexOf(delimiter)));
+                int y = Integer.parseInt(line.substring(line.indexOf(delimiter) + 1));
+                points.add(new Point(x, y));
+
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void moveActive(java.awt.Point newP) {

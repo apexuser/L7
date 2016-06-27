@@ -6,6 +6,11 @@ import java.util.ArrayList;
 
 /**
  * Created by dima on 28/05/16.
+ *
+ * for test:
+ *      1 pixel = 1,321 m
+ *      1 m     = 0,757 pixels
+ *
  */
 public class RaceEditor extends JFrame implements MouseListener, ActionListener {
     private static final long serialVersionUID = 1L;
@@ -65,8 +70,8 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
     }
 
     private void debugArcPaint(Graphics g) {
-        Arc x = new Arc( 600, -10, -7, 1, 0,  600, 10,  800);
-        Arc y = new Arc( 300, -20, -8, 1, 0,  300, 10,  300);
+        Arc x = new Arc( 600, -10, -7, 1, 0,  10);
+        Arc y = new Arc( 300, -20, -8, 1, 0,  10);
 
         PointArray pa = x.renderParametrizedArc(y, 20);
         drawCurve(pa, g, Color.blue);
@@ -110,6 +115,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
 
     @Override
     public void mousePressed(MouseEvent e) {
+//        System.out.println(e.getX() + ", " + e.getY());
         if (e.getButton() == 1) {
             int nearest = points.getInDistance(new Point(e.getX(), e.getY()), 10);
             if (nearest >= 0) {
@@ -275,7 +281,7 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
         }
     }
 
-    public void mouseMove(java.awt.Point p) {
+    private void mouseMove(java.awt.Point p) {
         if (points.getActive() >= 0) {
             points.moveActive(p);
             repaint();
@@ -315,41 +321,15 @@ public class RaceEditor extends JFrame implements MouseListener, ActionListener 
                 points = new PointArray();
                 break;
             case "save" :
-                save();
+                points.save();
                 break;
             case "load" :
-                load();
+                points.load();
                 break;
             case "run" :
                 run();
         }
         repaint();
-    }
-
-    private void save() {
-        FileOutputStream fos;
-        try {
-            fos = new FileOutputStream("test.track");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(points);
-            oos.close();
-        } catch (IOException e) {
-                e.printStackTrace();
-        }
-    }
-
-    private void load() {
-        FileInputStream fis;
-        try {
-            fis = new FileInputStream("test.track");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            points = (PointArray) ois.readObject();
-            ois.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
     private void run() {

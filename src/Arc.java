@@ -13,37 +13,31 @@ import java.util.ArrayList;
  *
  */
 public class Arc {
-    public double k0;
+    private final double k0;
     public double k1;
     public double k2;
     public double k3;
-    public double x1;
-    public double y1;
-    public double x2;
-    public double y2;
+    private final double x1;
+    private final double x2;
 
-    public Arc(double k0, double k1, double k2, double k3, double x1, double y1, double x2, double y2) {
+    public Arc(double k0, double k1, double k2, double k3, double x1, double x2) {
         this.k0 = k0;
         this.k1 = k1;
         this.k2 = k2;
         this.k3 = k3;
         this.x1 = x1;
-        this.y1 = y1;
         this.x2 = x2;
-        this.y2 = y2;
     }
 
-    public double getPolynomValue(double x) {
+    private double getPolynomValue(double x) {
         return k0 + x * (k1 + x * (k2 + x * k3));
     }
 
-    public double get1Derivative(double x) {
+    private double get1Derivative(double x) {
         return k1 + x * (2 * k2 + 3 * x * k3);
     }
 
-    public double get2Derivative(double x) {
-        return 2 * k2 + 6 * x * k3;
-    }
+    private double get2Derivative(double x) { return 2 * k2 + 6 * x * k3; }
 
     public PointArray renderSimpleArc(int segments) {
         PointArray result = new PointArray();

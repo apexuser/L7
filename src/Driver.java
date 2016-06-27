@@ -22,8 +22,7 @@ public class Driver {
         double newThrottle = getRandomizedValue(expectedCommand.throttle, getModifier(expectedCommand.throttle));
         double newBraking  = getRandomizedValue(expectedCommand.braking,  getModifier(expectedCommand.braking));
         double newSteering = getRandomizedValue(expectedCommand.steering, 0);
-        Command result = new Command(newThrottle, newBraking, newSteering, expectedCommand.gearShiftTo);
-        return result;
+        return new Command(newThrottle, newBraking, newSteering, expectedCommand.gearShiftTo);
     }
 
     private double getRandomizedValue(double value, int modifier) {
